@@ -1,0 +1,15 @@
+E:\quizgame\backend\quiz-service\src\main\java\com\quizgame\quiz\service\QuizService.java
+E:\quizgame\backend\quiz-service\src\main\java\com\quizgame\quiz\model\Quiz.java
+E:\quizgame\backend\quiz-service\src\main\java\com\quizgame\quiz\repository\QuizRepository.java
+E:\quizgame\backend\quiz-service\src\main\java\com\quizgame\quiz\dto\CreateQuizRequest.java
+E:\quizgame\backend\quiz-service\src\main\java\com\quizgame\quiz\dto\QuestionDTO.java
+E:\quizgame\backend\quiz-service\src\main\java\com\quizgame\quiz\feign\QuestionServiceClient.java
+E:\quizgame\backend\quiz-service\src\main\java\com\quizgame\quiz\dto\ScoreUpdateRequestDTO.java
+E:\quizgame\backend\quiz-service\src\main\java\com\quizgame\quiz\feign\UserServiceClient.java
+E:\quizgame\backend\quiz-service\src\main\java\com\quizgame\quiz\dto\StartQuizResponse.java
+E:\quizgame\backend\quiz-service\src\main\java\com\quizgame\quiz\dto\QuizQuestionDTO.java
+E:\quizgame\backend\quiz-service\src\main\java\com\quizgame\quiz\QuizApplication.java
+E:\quizgame\backend\quiz-service\src\main\java\com\quizgame\quiz\controller\QuizController.java
+E:\quizgame\backend\quiz-service\src\main\java\com\quizgame\quiz\dto\QuizResponse.java
+E:\quizgame\backend\quiz-service\src\main\java\com\quizgame\quiz\dto\SubmitAnswerRequest.java
+E:\quizgame\backend\quiz-service\src\main\java\com\quizgame\quiz\config\SecurityConfig.java

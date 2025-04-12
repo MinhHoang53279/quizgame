@@ -1,0 +1,15 @@
+com\quizgame\user\config\CorsConfig.class
+com\quizgame\user\service\UserService.class
+com\quizgame\user\service\UserServiceImpl.class
+com\quizgame\user\dto\ScoreUpdateDTO.class
+com\quizgame\user\dto\UpdateUserRequest.class
+com\quizgame\user\config\MongoConfig.class
+com\quizgame\user\model\User.class
+com\quizgame\user\UserServiceApplication.class
+com\quizgame\user\config\SecurityConfig.class
+com\quizgame\user\dto\ScoreUpdateRequest.class
+com\quizgame\user\repository\UserRepository.class
+com\quizgame\user\dto\UserDTO.class
+com\quizgame\user\exception\GlobalExceptionHandler.class
+com\quizgame\user\controller\UserController.class
+com\quizgame\user\dto\CreateUserRequest.class

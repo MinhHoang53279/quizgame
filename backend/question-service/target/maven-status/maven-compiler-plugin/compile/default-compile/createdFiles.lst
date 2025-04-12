@@ -1,0 +1,6 @@
+com\quizgame\question\QuestionApplication.class
+com\quizgame\question\config\SecurityConfig.class
+com\quizgame\question\controller\QuestionController.class
+com\quizgame\question\repository\QuestionRepository.class
+com\quizgame\question\model\Question.class
+com\quizgame\question\service\QuestionService.class

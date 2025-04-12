@@ -1,0 +1,44 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: auth-service
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: auth_db
+      auto-index-creation: true
+  security:
+    jwt:
+      secret: ${JWT_SECRET:your-secret-key-here-must-be-at-least-256-bits-long}
+      expiration: 86400000 # 24 hours
+      refresh-token-expiration: 604800000 # 7 days
+  jackson:
+    date-format: yyyy-MM-dd'T'HH:mm:ss.SSSZ
+    time-zone: UTC
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    preferIpAddress: true
+    instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+logging:
+  level:
+    root: INFO
+    com.quizgame.auth: DEBUG
+    org.springframework.security: INFO
+    org.springframework.web: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always 

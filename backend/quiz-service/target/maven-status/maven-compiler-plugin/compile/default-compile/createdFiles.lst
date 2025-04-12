@@ -1,0 +1,15 @@
+com\quizgame\quiz\dto\QuizResponse.class
+com\quizgame\quiz\dto\QuizQuestionDTO.class
+com\quizgame\quiz\dto\CreateQuizRequest.class
+com\quizgame\quiz\repository\QuizRepository.class
+com\quizgame\quiz\feign\QuestionServiceClient.class
+com\quizgame\quiz\feign\UserServiceClient.class
+com\quizgame\quiz\dto\SubmitAnswerRequest.class
+com\quizgame\quiz\dto\ScoreUpdateRequestDTO.class
+com\quizgame\quiz\dto\QuestionDTO.class
+com\quizgame\quiz\service\QuizService.class
+com\quizgame\quiz\controller\QuizController.class
+com\quizgame\quiz\dto\StartQuizResponse.class
+com\quizgame\quiz\model\Quiz.class
+com\quizgame\quiz\QuizApplication.class
+com\quizgame\quiz\config\SecurityConfig.class
