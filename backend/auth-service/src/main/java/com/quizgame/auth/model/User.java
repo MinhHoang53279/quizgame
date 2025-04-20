@@ -23,6 +23,8 @@ public class User implements UserDetails {
     private String username;
     private String password;
     private String email;
+    private String fullName;
+    private int score = 0;
     private String role = "USER";
 
     @Override

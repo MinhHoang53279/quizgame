@@ -1,8 +1,7 @@
 // Nhập thư viện Flutter cơ bản
 import 'package:flutter/material.dart';
-
-// Import dữ liệu người dùng để kiểm tra email tồn tại
-import '../data/user_data.dart' show UserData;
+import 'package:provider/provider.dart'; // Add provider
+import '../data/providers/user_provider.dart'; // Import UserProvider
 
 // Màn hình "Quên mật khẩu" sử dụng StatefulWidget vì có sự thay đổi trạng thái (loading, xử lý)
 class ForgotPasswordScreen extends StatefulWidget {
@@ -20,47 +19,47 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   bool _isLoading = false; // Biến xử lý hiển thị loading khi gửi yêu cầu
 
   // Hàm xử lý gửi yêu cầu đặt lại mật khẩu
-  void _resetPassword() async {
+  void _submitRequest() async {
+    // Hide keyboard
+    FocusScope.of(context).unfocus();
+
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true; // Bật loading khi bắt đầu xử lý
       });
 
-      String email = _emailController.text;
+      try {
+         // Call UserProvider to handle forgot password request
+        final message = await Provider.of<UserProvider>(context, listen: false)
+            .forgotPassword(email: _emailController.text);
 
-      // Biến kiểm tra email có trong danh sách người dùng không
-      bool emailExists = false;
-      for (var user in UserData.users) {
-        if (user['email'] == email) {
-          emailExists = true;
-          break; // Dừng kiểm tra khi tìm thấy email
-        }
-      }
-
-      // Giả lập độ trễ xử lý (1 giây) – thực tế có thể là API
-      await Future.delayed(const Duration(seconds: 1));
-
-      setState(() {
-        _isLoading = false; // Tắt loading sau khi xử lý xong
-      });
-
-      if (emailExists) {
-        // Nếu email hợp lệ, thông báo đã gửi liên kết đặt lại mật khẩu
+        // Display the message from the backend (e.g., check console message)
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Đã gửi liên kết đặt lại mật khẩu đến email của bạn!',
-            ),
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.green, // Indicate success/info
           ),
         );
-        // Quay lại màn hình đăng nhập
-        Navigator.pop(context);
-      } else {
-        // Nếu email không tồn tại, thông báo lỗi
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Email không tồn tại!')));
+
+        // Optionally navigate back or stay on the screen
+        // if (mounted) Navigator.pop(context);
+
+      } catch (e) {
+        // Display error message from provider
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceFirst("Exception: ", "")),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
+
+       // Ensure loading is turned off
+       if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+       }
     }
   }
 
@@ -126,7 +125,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 _isLoading
                     ? const CircularProgressIndicator(color: Colors.purple)
                     : ElevatedButton(
-                      onPressed: _resetPassword, // Gọi hàm gửi yêu cầu
+                      onPressed: _submitRequest, // Call the updated function
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.purple[400],
                         padding: const EdgeInsets.symmetric(vertical: 15),

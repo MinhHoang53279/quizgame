@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../data/user_data.dart';
+import 'package:provider/provider.dart';
+import '../data/providers/user_provider.dart';
 
 // Màn hình đăng ký tài khoản mới
 class SignUpScreen extends StatefulWidget {
@@ -16,46 +17,69 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  final TextEditingController _fullNameController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>(); // Key để kiểm tra form hợp lệ
   bool _isLoading = false; // Trạng thái đang xử lý đăng ký
 
   // Hàm xử lý đăng ký người dùng
   void _register() async {
-    if (_formKey.currentState!.validate()) {
-      // Kiểm tra mật khẩu nhập lại có trùng khớp không
-      if (_passwordController.text != _confirmPasswordController.text) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Mật khẩu xác thực không khớp!')),
-        );
-        return;
-      }
+    // Hide keyboard
+    FocusScope.of(context).unfocus();
 
+    if (_formKey.currentState!.validate()) {
+      // Mật khẩu xác thực đã được kiểm tra bởi validator
       setState(() {
         _isLoading = true;
       });
 
-      // Thêm người dùng mới vào dữ liệu tạm (UserData)
-      UserData.addUser(
-        _usernameController.text,
-        _emailController.text,
-        _passwordController.text,
-      );
+      try {
+        // Use UserProvider to register the user via backend service
+        final success = await Provider.of<UserProvider>(context, listen: false)
+            .createUser(
+          username: _usernameController.text,
+          email: _emailController.text,
+          password: _passwordController.text,
+          fullName: _fullNameController.text,
+        );
 
-      await Future.delayed(const Duration(seconds: 1)); // Giả lập chờ xử lý
+        if (success) {
+          // Thông báo đăng ký thành công và chuyển về trang đăng nhập
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Đăng ký thành công! Vui lòng đăng nhập.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          // Navigate to login after successful registration
+          if (mounted) { // Check if the widget is still in the tree
+             Navigator.pushReplacementNamed(context, '/login');
+          }
+        } else {
+          // Error message is handled within UserProvider, show generic message or use provider error
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(Provider.of<UserProvider>(context, listen: false).error ?? 'Đăng ký thất bại.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        // Handle potential errors from the provider call itself
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Đã xảy ra lỗi: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
 
-      setState(() {
-        _isLoading = false;
-      });
-
-      // Thông báo đăng ký thành công và chuyển về trang đăng nhập
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Đăng ký thành công! Vui lòng đăng nhập.'),
-        ),
-      );
-
-      Navigator.pushReplacementNamed(context, '/login');
+      // Ensure isLoading is set to false even if registration fails or widget is unmounted
+      if (mounted) {
+         setState(() {
+           _isLoading = false;
+         });
+      }
     }
   }
 
@@ -66,6 +90,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _fullNameController.dispose();
     super.dispose();
   }
 
@@ -131,6 +156,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     }
                     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
                       return 'Vui lòng nhập email hợp lệ';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 15),
+                // Input Full Name
+                TextFormField(
+                  controller: _fullNameController,
+                  decoration: InputDecoration(
+                    labelText: 'Họ và tên',
+                    labelStyle: const TextStyle(color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Vui lòng nhập họ và tên';
                     }
                     return null;
                   },

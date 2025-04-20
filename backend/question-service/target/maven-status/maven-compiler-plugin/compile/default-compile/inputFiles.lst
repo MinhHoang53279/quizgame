@@ -1,6 +1,9 @@
 E:\quizgame\backend\question-service\src\main\java\com\quizgame\question\QuestionApplication.java
+E:\quizgame\backend\question-service\src\main\java\com\quizgame\question\config\MongoConfig.java
 E:\quizgame\backend\question-service\src\main\java\com\quizgame\question\model\Question.java
 E:\quizgame\backend\question-service\src\main\java\com\quizgame\question\controller\QuestionController.java
 E:\quizgame\backend\question-service\src\main\java\com\quizgame\question\service\QuestionService.java
 E:\quizgame\backend\question-service\src\main\java\com\quizgame\question\config\SecurityConfig.java
 E:\quizgame\backend\question-service\src\main\java\com\quizgame\question\repository\QuestionRepository.java
+E:\quizgame\backend\question-service\src\main\java\com\quizgame\question\dto\QuestionDTO.java
+E:\quizgame\backend\question-service\src\main\java\com\quizgame\question\config\CorsConfig.java
