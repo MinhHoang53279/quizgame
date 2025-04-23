@@ -8,4 +8,5 @@ public class CreateQuizRequest {
     private String category; // Optional: Lọc theo category
     private String difficulty; // Optional: Lọc theo độ khó
     private int count = 10; // Số lượng câu hỏi mong muốn, mặc định là 10
+    private boolean randomOrder = true; // true: thứ tự câu hỏi khác nhau, false: thứ tự câu hỏi giống nhau
 } 

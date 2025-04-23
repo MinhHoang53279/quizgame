@@ -54,6 +54,11 @@ public class QuizService {
             throw new RuntimeException("Không tìm thấy câu hỏi phù hợp.");
         }
 
+        // Nếu randomOrder = false, sắp xếp câu hỏi theo thứ tự cố định
+        if (!request.isRandomOrder()) {
+            questions.sort((q1, q2) -> q1.getId().compareTo(q2.getId()));
+        }
+
         // Tạo đối tượng Quiz mới
         Quiz quiz = new Quiz();
         quiz.setUserId(request.getUserId());
