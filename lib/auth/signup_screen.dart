@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../data/providers/user_provider.dart';
 
-// Màn hình đăng ký tài khoản mới
+/**
+ * Màn hình Đăng ký tài khoản.
+ * Cho phép người dùng nhập thông tin và gọi UserProvider để tạo tài khoản.
+ */
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -15,26 +18,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _fullNameController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>(); // Key để kiểm tra form hợp lệ
   bool _isLoading = false; // Trạng thái đang xử lý đăng ký
 
-  // Hàm xử lý đăng ký người dùng
+  /**
+   * Hàm xử lý sự kiện nhấn nút Đăng ký.
+   * Validate form, gọi UserProvider.createUser và xử lý kết quả.
+   */
   void _register() async {
-    // Hide keyboard
+    // Ẩn bàn phím
     FocusScope.of(context).unfocus();
 
     if (_formKey.currentState!.validate()) {
       // Mật khẩu xác thực đã được kiểm tra bởi validator
       setState(() {
-        _isLoading = true;
+        _isLoading = true; // Bật trạng thái loading
       });
 
       try {
-        // Use UserProvider to register the user via backend service
+        // Gọi UserProvider để đăng ký thông qua backend
         final success = await Provider.of<UserProvider>(context, listen: false)
             .createUser(
           username: _usernameController.text,
@@ -43,20 +48,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
           fullName: _fullNameController.text,
         );
 
-        if (success) {
-          // Thông báo đăng ký thành công và chuyển về trang đăng nhập
+        if (success && mounted) { // Kiểm tra mounted trước khi thao tác context
+          // Thông báo thành công và chuyển về trang đăng nhập
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Đăng ký thành công! Vui lòng đăng nhập.'),
               backgroundColor: Colors.green,
             ),
           );
-          // Navigate to login after successful registration
-          if (mounted) { // Check if the widget is still in the tree
-             Navigator.pushReplacementNamed(context, '/login');
-          }
-        } else {
-          // Error message is handled within UserProvider, show generic message or use provider error
+          Navigator.pushReplacementNamed(context, '/login');
+        } else if (mounted) {
+          // Hiển thị lỗi từ UserProvider
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(Provider.of<UserProvider>(context, listen: false).error ?? 'Đăng ký thất bại.'),
@@ -65,16 +67,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
           );
         }
       } catch (e) {
-        // Handle potential errors from the provider call itself
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Đã xảy ra lỗi: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        // Xử lý lỗi không mong đợi từ Provider
+         if (mounted) {
+             ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Đã xảy ra lỗi: ${e.toString()}'),
+                  backgroundColor: Colors.red,
+                ),
+             );
+         }
       }
 
-      // Ensure isLoading is set to false even if registration fails or widget is unmounted
+      // Đảm bảo tắt loading ngay cả khi có lỗi hoặc widget bị unmount
       if (mounted) {
          setState(() {
            _isLoading = false;
@@ -85,7 +89,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   void dispose() {
-    // Giải phóng tài nguyên khi widget bị hủy
+    // Giải phóng các controller khi widget bị hủy
     _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -94,6 +98,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
+  /**
+   * Xây dựng giao diện người dùng cho màn hình Đăng ký.
+   */
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -247,7 +254,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 }
 
-// Widget tùy biến để nhập mật khẩu (ẩn/hiện mật khẩu)
+/**
+ * Widget tùy chỉnh cho trường nhập mật khẩu với chức năng ẩn/hiện.
+ */
 class PasswordField extends StatefulWidget {
   final TextEditingController controller;
   final String labelText;
@@ -265,8 +274,11 @@ class PasswordField extends StatefulWidget {
 }
 
 class _PasswordFieldState extends State<PasswordField> {
-  bool _isVisible = false;
+  bool _isVisible = false; // Trạng thái ẩn/hiện mật khẩu
 
+  /**
+   * Xây dựng giao diện cho trường mật khẩu.
+   */
   @override
   Widget build(BuildContext context) {
     return TextFormField(

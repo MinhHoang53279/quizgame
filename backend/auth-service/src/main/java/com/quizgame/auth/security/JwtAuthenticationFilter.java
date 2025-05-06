@@ -17,6 +17,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * Bộ lọc (Filter) xử lý xác thực JWT cho mỗi yêu cầu.
+ * Chạy một lần cho mỗi request (@Component, extends OncePerRequestFilter).
+ * Trích xuất token từ header Authorization, xác thực và thiết lập SecurityContext.
+ */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -26,6 +31,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
+    /**
+     * Lọc và xử lý yêu cầu HTTP để xác thực JWT.
+     * @param request Đối tượng yêu cầu HTTP.
+     * @param response Đối tượng phản hồi HTTP.
+     * @param filterChain Chuỗi các bộ lọc tiếp theo.
+     * @throws ServletException Nếu có lỗi servlet.
+     * @throws IOException Nếu có lỗi IO.
+     */
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,

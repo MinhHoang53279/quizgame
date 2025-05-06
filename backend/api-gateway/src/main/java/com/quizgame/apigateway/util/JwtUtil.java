@@ -13,6 +13,11 @@ import java.util.function.Function;
 import java.nio.charset.StandardCharsets;
 import javax.crypto.spec.SecretKeySpec;
 
+/**
+ * Lớp tiện ích xử lý JWT trong API Gateway.
+ * Chủ yếu dùng để xác thực token và trích xuất thông tin (claims).
+ * Sử dụng cùng secret key với auth-service.
+ */
 @Component
 public class JwtUtil {
 
@@ -24,30 +29,58 @@ public class JwtUtil {
     @PostConstruct
     public void init() {
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
-        this.key = new SecretKeySpec(keyBytes, "HmacSHA384");
+        this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
+    /**
+     * Trích xuất tất cả các claims từ một JWT token.
+     * @param token Chuỗi JWT.
+     * @return Claims object chứa tất cả thông tin trong payload.
+     */
     public Claims extractAllClaims(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
 
+    /**
+     * Trích xuất một claim cụ thể từ token bằng claimsResolver.
+     * @param token Chuỗi JWT.
+     * @param claimsResolver Hàm để lấy claim mong muốn.
+     * @return Giá trị của claim.
+     */
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
+    /**
+     * Trích xuất username (subject) từ token.
+     * @param token Chuỗi JWT.
+     * @return Username.
+     */
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
+    /**
+     * Trích xuất thời gian hết hạn từ token.
+     * @param token Chuỗi JWT.
+     * @return Thời gian hết hạn.
+     */
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
+    // Kiểm tra token đã hết hạn chưa.
     private Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
+    /**
+     * Xác thực tính hợp lệ của một JWT token.
+     * Kiểm tra chữ ký và thời gian hết hạn.
+     * @param token Chuỗi JWT cần xác thực.
+     * @return true nếu token hợp lệ, false nếu ngược lại.
+     */
     public Boolean validateToken(String token) {
         System.out.println("JwtUtil: Validating token: [" + token + "]");
         try {

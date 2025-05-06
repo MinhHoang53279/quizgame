@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+/**
+ * DTO chứa thông tin cần thiết để đăng ký tài khoản mới.
+ */
 @Data
 public class RegisterRequest {
     @NotBlank(message = "Username is required")

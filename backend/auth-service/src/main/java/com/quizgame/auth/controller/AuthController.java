@@ -7,6 +7,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controller xử lý các yêu cầu liên quan đến xác thực như đăng nhập, đăng ký,
+ * quên mật khẩu và đặt lại mật khẩu.
+ */
 // Removed @CrossOrigin annotation as CORS is handled globally by the API Gateway
 // @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -16,37 +20,62 @@ public class AuthController {
 
     private final AuthService authService;
 
+    /**
+     * Endpoint xử lý yêu cầu đăng nhập của người dùng.
+     * @param request Chứa username và password.
+     * @return ResponseEntity chứa AuthResponse (token và thông tin người dùng) nếu thành công.
+     */
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Endpoint xử lý yêu cầu đăng ký tài khoản mới.
+     * @param request Chứa thông tin đăng ký (username, email, password, fullName).
+     * @return ResponseEntity chứa AuthResponse (token và thông tin người dùng) với mã 201 (Created) nếu thành công.
+     */
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         AuthResponse response = authService.register(request);
         return ResponseEntity.status(201).body(response);
     }
 
+    /**
+     * Endpoint xử lý yêu cầu quên mật khẩu.
+     * Nhận email và yêu cầu AuthService tạo token đặt lại (nếu email tồn tại).
+     * Luôn trả về 200 OK để tránh tấn công liệt kê email.
+     * @param request Chứa địa chỉ email.
+     * @return ResponseEntity với thông báo xử lý.
+     */
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         try {
             authService.forgotPassword(request.getEmail());
+            // Luôn trả về OK để ngăn chặn việc đoán email
             return ResponseEntity.ok().body("If your email exists in our system, a password reset link has been simulated (check backend console).");
         } catch (Exception e) {
-            System.err.println("Error during forgot password: " + e.getMessage());
-            return ResponseEntity.ok().body("Password reset request processed.");
+            // Ghi lại lỗi nhưng vẫn trả về OK cho client
+             System.err.println("Error during forgot password: " + e.getMessage());
+             return ResponseEntity.ok().body("Password reset request processed."); // Thông báo chung
         }
     }
 
+    /**
+     * Endpoint xử lý yêu cầu đặt lại mật khẩu bằng token.
+     * @param request Chứa token và mật khẩu mới.
+     * @return ResponseEntity với thông báo thành công hoặc lỗi (ví dụ: token không hợp lệ/hết hạn).
+     */
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         try {
             authService.resetPassword(request.getToken(), request.getNewPassword());
             return ResponseEntity.ok().body("Password has been successfully reset.");
         } catch (RuntimeException e) {
-            System.err.println("Error during reset password: " + e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
+             System.err.println("Error during reset password: " + e.getMessage());
+             // Trả về lỗi cụ thể từ service
+             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 } 

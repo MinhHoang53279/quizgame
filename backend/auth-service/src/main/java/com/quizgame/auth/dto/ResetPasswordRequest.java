@@ -4,6 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+/**
+ * DTO chứa thông tin cần thiết để đặt lại mật khẩu (token và mật khẩu mới).
+ */
 @Data
 public class ResetPasswordRequest {
 

@@ -3,6 +3,11 @@ import 'package:provider/provider.dart';
 import '../data/providers/user_provider.dart';
 import 'signup_screen.dart'; // Import PasswordField from signup_screen
 
+/**
+ * Màn hình Đặt lại mật khẩu.
+ * Yêu cầu người dùng nhập token (lấy từ console backend)
+ * và mật khẩu mới để đặt lại.
+ */
 class ResetPasswordScreen extends StatefulWidget {
   // Optionally accept token via constructor if navigating with arguments
   // final String? initialToken;
@@ -24,12 +29,17 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   @override
   void initState() {
     super.initState();
-    // If token is passed via arguments, pre-fill the field
-    // if (widget.initialToken != null) {
-    //   _tokenController.text = widget.initialToken!;
+    // Nếu token được truyền qua arguments, điền sẵn vào ô nhập
+    // final args = ModalRoute.of(context)?.settings.arguments as Map?;
+    // if (args != null && args['token'] != null) {
+    //   _tokenController.text = args['token'];
     // }
   }
 
+  /**
+   * Hàm xử lý sự kiện nhấn nút "Đặt lại mật khẩu".
+   * Validate form, gọi UserProvider.resetPassword và xử lý kết quả.
+   */
   void _submitReset() async {
     FocusScope.of(context).unfocus();
 
@@ -71,12 +81,16 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   @override
   void dispose() {
+    // Giải phóng controllers
     _tokenController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
 
+  /**
+   * Xây dựng giao diện người dùng cho màn hình Đặt lại mật khẩu.
+   */
   @override
   Widget build(BuildContext context) {
     return Scaffold(

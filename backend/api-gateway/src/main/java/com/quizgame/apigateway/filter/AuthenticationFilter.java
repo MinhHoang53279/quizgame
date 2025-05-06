@@ -33,8 +33,21 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 
             // Bypass authentication for public endpoints defined in RouteValidator
             if (validator.isSecured.test(request)) {
+                System.out.println("!!! DEBUG: Path needs security: " + request.getURI().getPath()); // DEBUG LOG
+/*
+                // --- TEMPORARY DEBUGGING: BYPASS TOKEN VALIDATION ---
+                System.out.println("!!! DEBUG: Bypassing token validation for path: " + request.getURI().getPath());
+                // Add a dummy role header if needed by downstream, or just proceed
+                ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
+                            .header("X-User-Role", "DEBUG_ADMIN") // Dummy role
+                            .build();
+                return chain.filter(exchange.mutate().request(mutatedRequest).build());
+                // --- END TEMPORARY DEBUGGING ---
+*/
+                // Restore original logic:
                 // Check if Authorization header is present
                 if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
+                    System.err.println("!!! Auth Filter Error: Missing Authorization header for path: " + request.getURI().getPath());
                     return onError(exchange, "Missing Authorization header", HttpStatus.UNAUTHORIZED);
                 }
 
@@ -46,16 +59,18 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     token = authHeader.substring(7); // Extract only the token part
                 } else {
                     // Header is present but malformed or doesn't start with Bearer
+                    System.err.println("!!! Auth Filter Error: Invalid Authorization header format for path: " + request.getURI().getPath() + ", Header: " + authHeader);
                     return onError(exchange, "Invalid Authorization header format", HttpStatus.UNAUTHORIZED);
                 }
 
                 try {
-                    System.out.println("Attempting to validate token: [" + token + "]"); // Log token before validation
+                    // System.out.println("Attempting to validate token: [" + token + "]"); // Log token before validation (Optional)
                     boolean isValid = jwtUtil.validateToken(token);
-                    System.out.println("Token validation result: " + isValid); // Log validation result
+                    // System.out.println("Token validation result: " + isValid); // Log validation result (Optional)
                     
                     // Validate the extracted JWT token
                     if (!isValid) { // Use the validation result
+                       System.err.println("!!! Auth Filter Error: Invalid or expired JWT token for path: " + request.getURI().getPath());
                        return onError(exchange, "Invalid or expired JWT token", HttpStatus.UNAUTHORIZED);
                     }
 
@@ -63,8 +78,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     Claims claims = jwtUtil.extractAllClaims(token);
                     String role = claims.get("role", String.class); // Get role from claims
                     if (role == null) {
-                         // Handle case where role claim is missing, maybe deny access or assign default
-                         // For now, let's deny access if role is missing in a valid token
+                         System.err.println("!!! Auth Filter Error: Missing role information in token for path: " + request.getURI().getPath());
                          return onError(exchange, "Missing role information in token", HttpStatus.FORBIDDEN); 
                     }
                     
@@ -77,12 +91,13 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     return chain.filter(exchange.mutate().request(mutatedRequest).build());
 
                 } catch (Exception e) {
-                    System.err.println("!!! Unexpected Error in AuthenticationFilter: " + e.getMessage());
+                    System.err.println("!!! Unexpected Error in AuthenticationFilter during token processing: " + e.getMessage());
                     e.printStackTrace(); // Print stack trace for unexpected errors
                     return onError(exchange, "Unauthorized access due to filter error", HttpStatus.UNAUTHORIZED);
                 }
             }
             // If the endpoint is not secured (public), proceed without modification
+            // System.out.println("!!! DEBUG: Path is public: " + request.getURI().getPath()); // DEBUG LOG (can be removed)
             return chain.filter(exchange);
         });
     }

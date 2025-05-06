@@ -229,6 +229,19 @@ class AuthService {
     }
   }
 
+  // Get stored token
+  Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_tokenKey);
+  }
+
+  // Clear stored token (logout)
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_tokenKey);
+    print('User logged out, token removed.');
+  }
+
   // --- Helper methods ---
 
   Future<Map<String, dynamic>> _handleAuthResponse(http.Response response) async {
@@ -248,44 +261,57 @@ class AuthService {
         print('Error decoding login response JSON: $e');
         throw Exception('Invalid response format from server.');
       }
+    } else if (response.statusCode == 401) {
+      print('Login failed: Invalid credentials (401)');
+       throw Exception('Invalid username or password.');
     } else {
-      // Try to decode error message if available
-      String errorMessage = 'Failed to login (Status code: ${response.statusCode})';
+       String errorMessage = 'Login failed with status: ${response.statusCode}';
       try {
         final errorData = jsonDecode(response.body) as Map<String, dynamic>;
-        errorMessage = errorData['message'] ?? errorData['error'] ?? errorMessage;
+          errorMessage = errorData['message'] ?? errorData['error'] ?? response.body;
       } catch (_) {
-        // Ignore if body is not JSON or doesn't contain expected keys
-         errorMessage = '${errorMessage}: ${response.body}'; // Include raw body if parsing fails
+           errorMessage = response.body.isNotEmpty ? response.body : errorMessage;
       }
-      print('Login failed: $errorMessage');
+         print('Login Error: $errorMessage');
       throw Exception(errorMessage);
     }
   }
 
    Future<Map<String, dynamic>> _handleRegistrationResponse(http.Response response) async {
-    if (response.statusCode == 200 || response.statusCode == 201) { // Handle 200 or 201 for registration success
+    if (response.statusCode == 201 || response.statusCode == 200) { // 201 Created or 200 OK
       try {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
-        print('Registration successful for user: ${data['username']}');
-        // Optionally, login the user immediately after registration by saving the token if returned
-        // if (data['token'] != null) {
-        //   await _saveToken(data['token']);
-        // }
-        return data; // Return registration details
+          // Assume registration might also return a token (adjust if not)
+          if (data['token'] != null) {
+            await _saveToken(data['token']);
+            print('Registration successful, token saved.');
+          } else {
+            print('Registration successful, but no token returned in response.');
+          }
+          return data; // Return user details or success message
       } on FormatException catch (e) {
         print('Error decoding registration response JSON: $e');
         throw Exception('Invalid response format from server after registration.');
       }
+    } else if (response.statusCode == 409) {
+        String errorMessage = 'Registration failed: Conflict (409)';
+        try {
+          final errorData = jsonDecode(response.body) as Map<String, dynamic>;
+          errorMessage = errorData['message'] ?? errorData['error'] ?? 'Username or email already exists.';
+        } catch (_) {
+           errorMessage = response.body.isNotEmpty ? response.body : errorMessage;
+        }
+        print('Registration Error: $errorMessage');
+        throw Exception(errorMessage);
     } else {
-      String errorMessage = 'Failed to register (Status code: ${response.statusCode})';
+        String errorMessage = 'Registration failed with status: ${response.statusCode}';
        try {
         final errorData = jsonDecode(response.body) as Map<String, dynamic>;
-        errorMessage = errorData['message'] ?? errorData['error'] ?? errorMessage;
+          errorMessage = errorData['message'] ?? errorData['error'] ?? response.body;
       } catch (_) {
-         errorMessage = '${errorMessage}: ${response.body}';
+           errorMessage = response.body.isNotEmpty ? response.body : errorMessage;
       }
-      print('Registration failed: $errorMessage');
+        print('Registration Error: $errorMessage');
       throw Exception(errorMessage);
     }
   }
@@ -295,16 +321,20 @@ class AuthService {
     await prefs.setString(_tokenKey, token);
   }
 
-  // Get stored token
-  Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_tokenKey);
-  }
-
-  // Clear stored token (logout)
-  Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_tokenKey);
-    print('User logged out, token removed.');
+  // Helper to get authorization headers (could be used for other services)
+  Future<Map<String, String>> getAuthHeaders() async {
+     final token = await getToken();
+     if (token != null) {
+       return {
+         'Authorization': 'Bearer $token',
+         'Content-Type': 'application/json; charset=UTF-8',
+         'Accept': 'application/json',
+       };
+     } else {
+        return {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Accept': 'application/json',
+        }; // Return non-auth headers if no token
+     }
   }
 } 

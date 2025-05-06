@@ -25,6 +25,10 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Lớp dịch vụ (Service) chính xử lý logic nghiệp vụ liên quan đến xác thực.
+ * Bao gồm đăng ký, đăng nhập, quên mật khẩu, đặt lại mật khẩu.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -42,6 +46,13 @@ public class AuthService {
     @Value("${frontend.base.url:http://localhost:59242}")
     private String frontendBaseUrl;
 
+    /**
+     * Xử lý yêu cầu đăng ký người dùng mới.
+     * Kiểm tra username/email tồn tại, mã hóa mật khẩu, lưu người dùng và tạo token.
+     * @param request DTO chứa thông tin đăng ký.
+     * @return AuthResponse chứa token và thông tin người dùng.
+     * @throws RuntimeException Nếu username hoặc email đã tồn tại hoặc có lỗi khi lưu.
+     */
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         log.info("Attempting to register user: {}", request.getUsername());
@@ -61,7 +72,9 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setFullName(request.getFullName());
-        user.setRole("USER");
+        
+        // Role assignment reverted to default
+        user.setRole("USER"); 
 
         try {
             user = userRepository.save(user);
@@ -75,6 +88,13 @@ public class AuthService {
         return new AuthResponse(jwt, user.getId(), user.getUsername(), user.getEmail(), user.getFullName(), user.getScore(), user.getRole());
     }
 
+    /**
+     * Xử lý yêu cầu đăng nhập.
+     * Sử dụng AuthenticationManager để xác thực, sau đó tạo token JWT.
+     * @param request DTO chứa username và password.
+     * @return AuthResponse chứa token và thông tin người dùng.
+     * @throws RuntimeException Nếu xác thực thất bại (vd: sai username/password).
+     */
     @Transactional
     public AuthResponse login(LoginRequest request) {
         log.info("Attempting to login user: {}", request.getUsername());
@@ -108,6 +128,11 @@ public class AuthService {
         }
     }
 
+    /**
+     * Xử lý yêu cầu quên mật khẩu.
+     * Tìm người dùng bằng email, tạo token reset, lưu token và giả lập gửi email (log ra console).
+     * @param email Địa chỉ email của người dùng yêu cầu reset.
+     */
     @Transactional
     public void forgotPassword(String email) {
         log.info("Forgot password request received for email: {}", email);
@@ -132,6 +157,13 @@ public class AuthService {
         }
     }
 
+    /**
+     * Xử lý yêu cầu đặt lại mật khẩu bằng token.
+     * Xác thực token (tồn tại, chưa hết hạn), tìm người dùng, cập nhật mật khẩu mới (đã mã hóa) và xóa token.
+     * @param token Token đặt lại mật khẩu.
+     * @param newPassword Mật khẩu mới.
+     * @throws RuntimeException Nếu token không hợp lệ, hết hạn hoặc không tìm thấy người dùng.
+     */
     @Transactional
     public void resetPassword(String token, String newPassword) {
         log.info("Reset password attempt with token: {}", token);

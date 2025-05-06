@@ -10,6 +10,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Lớp triển khai các hoạt động nghiệp vụ cho User Service.
+ * Tương tác với UserRepository để thực hiện các thao tác CRUD và cập nhật.
+ */
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -17,6 +21,9 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Tạo người dùng mới, kiểm tra trùng lặp username/email và mã hóa mật khẩu.
+     */
     @Override
     public User createUser(User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
@@ -32,6 +39,10 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
+    /**
+     * Cập nhật thông tin người dùng, kiểm tra trùng lặp username/email nếu thay đổi.
+     * Mật khẩu được mã hóa nếu được cung cấp.
+     */
     @Override
     public Optional<User> updateUser(String id, User updatedUser) {
         return userRepository.findById(id).map(existingUser -> {
@@ -60,36 +71,57 @@ public class UserServiceImpl implements UserService {
         });
     }
 
+    /**
+     * Xóa người dùng theo ID.
+     */
     @Override
     public void deleteUser(String id) {
         userRepository.deleteById(id);
     }
 
+    /**
+     * Lấy thông tin người dùng theo ID.
+     */
     @Override
     public Optional<User> getUserById(String id) {
         return userRepository.findById(id);
     }
 
+    /**
+     * Lấy thông tin người dùng theo username.
+     */
     @Override
     public Optional<User> getUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
+    /**
+     * Lấy danh sách tất cả người dùng.
+     */
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
+    /**
+     * Kiểm tra username tồn tại.
+     */
     @Override
     public boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
     }
 
+    /**
+     * Kiểm tra email tồn tại.
+     */
     @Override
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 
+    /**
+     * Cập nhật điểm cho người dùng.
+     */
     @Override
     public Optional<User> updateScore(String userId, int scoreChange) {
         return userRepository.findById(userId)

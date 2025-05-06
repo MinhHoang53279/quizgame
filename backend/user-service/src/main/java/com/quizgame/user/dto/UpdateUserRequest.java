@@ -5,6 +5,10 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import java.util.Set;
 
+/**
+ * DTO chứa thông tin có thể cập nhật cho người dùng.
+ * Các trường đều là tùy chọn.
+ */
 @Data
 public class UpdateUserRequest {
     @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters")

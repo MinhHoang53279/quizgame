@@ -4,6 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
+/**
+ * Lớp chính khởi chạy ứng dụng User Service.
+ * @EnableDiscoveryClient cho phép dịch vụ đăng ký và được khám phá bởi Eureka.
+ */
 @SpringBootApplication
 @EnableDiscoveryClient
 public class UserServiceApplication {

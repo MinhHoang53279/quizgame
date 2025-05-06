@@ -1,0 +1,105 @@
+spring:
+  application:
+    name: api-gateway # Tên ứng dụng gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true # Bật tự động tìm kiếm service qua Eureka
+          lower-case-service-id: true # Chuyển tên service thành chữ thường khi tạo route tự động (nếu dùng)
+      globalcors:
+        cors-configurations:
+          '[/**]': # Apply to all paths
+            allowedOrigins: "*" # Allow any origin (use with caution, dev only!)
+            allowedMethods:
+              - "GET"
+              - "POST"
+              - "PUT"
+              - "DELETE"
+              - "OPTIONS"
+              - "PATCH"
+            allowedHeaders:
+              - "Authorization"
+              - "Content-Type"
+              - "Accept"
+              - "X-Requested-With"
+              - "Origin"
+            # allowCredentials: false # Default is false, generally cannot be true with allowedOrigins="*"
+            maxAge: 3600
+      # ... other gateway configurations like routes ... 
+      routes:
+        # Route cho Auth Service
+        - id: auth-service-route
+          uri: lb://auth-service # Sử dụng load balancing qua Eureka
+          predicates:
+            - Path=/api/auth/** # Match các đường dẫn bắt đầu bằng /api/auth/
+          filters:
+            # Viết lại đường dẫn: /api/auth/(segment) -> /$\{segment}
+            - RewritePath=/api/auth/(?<segment>.*), /$\{segment}
+
+        # Route cho User Service (Ví dụ đường dẫn, cần điều chỉnh nếu User Service có API khác)
+        - id: user-service-route
+          uri: lb://user-service
+          predicates:
+            # Giả sử API quản lý user nằm dưới /api/admin/users/
+            - Path=/api/admin/users/**
+          filters:
+            - RewritePath=/api/admin/users/(?<segment>.*), /$\{segment}
+
+        # Route cho Quiz Service
+        - id: quiz-service-route
+          uri: lb://quiz-service
+          predicates:
+            # Giả sử API quản lý quiz nằm dưới /api/admin/quizzes/
+            - Path=/api/admin/quizzes/** 
+          filters:
+            - RewritePath=/api/admin/quizzes/(?<segment>.*), /$\{segment}
+
+        # Route cho Question Service
+        - id: question-service-route
+          uri: lb://question-service
+          predicates:
+            # Giả sử API quản lý question nằm dưới /api/admin/questions/
+            - Path=/api/admin/questions/**
+          filters:
+            - RewritePath=/api/admin/questions/(?<segment>.*), /$\{segment}
+
+        # --- Route cho Settings Service (MỚI) ---
+        - id: settings-service-route
+          # uri: lb://SETTINGS-SERVICE # Giữ lại URL trực tiếp để test, hoặc đổi lại lb nếu muốn test discovery
+          uri: http://localhost:8086    
+          predicates:
+            # Match các đường dẫn cho settings admin
+            - Path=/api/admin/settings/**
+          filters:
+            # Viết lại đường dẫn: /api/admin/settings/(segment) -> /(segment)
+            # Vì Controller giờ lắng nghe trên đường dẫn đầy đủ (/api/settings/...)
+            - RewritePath=/api/admin/settings/(?<segment>.*), /$\{segment}
+
+        # Route cho Admin Dashboard Service
+        - id: admin-dashboard-service-route
+          uri: lb://admin-dashboard-service
+          predicates:
+            # Match các đường dẫn cho dashboard admin
+            - Path=/api/admin/dashboard/**
+          filters:
+            # Viết lại đường dẫn: /api/admin/dashboard/(segment) -> /api/admin/(segment)
+            # Vì DashboardController lắng nghe trên /api/admin/
+            - RewritePath=/api/admin/dashboard/(?<segment>.*), /api/admin/$\{segment}
+
+server:
+  port: 8080 # Cổng mặc định cho Gateway
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/} 
+    register-with-eureka: true # Gateway cũng đăng ký với Eureka (tùy chọn)
+    fetch-registry: true
+
+# Cấu hình logging (Tùy chọn)
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE # Log chi tiết gateway để debug routing
+    reactor.netty.http.client: DEBUG # Log HTTP client của gateway
+    root: INFO 

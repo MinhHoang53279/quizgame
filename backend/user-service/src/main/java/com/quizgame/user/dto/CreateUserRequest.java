@@ -6,6 +6,9 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import java.util.Set;
 
+/**
+ * DTO chứa thông tin cần thiết để tạo người dùng mới.
+ */
 @Data
 public class CreateUserRequest {
     @NotBlank(message = "Username is required")

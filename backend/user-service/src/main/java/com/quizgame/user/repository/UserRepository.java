@@ -6,6 +6,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+/**
+ * Repository interface để tương tác với collection User trong MongoDB.
+ * Cung cấp các phương thức CRUD cơ bản và truy vấn tùy chỉnh theo username, email.
+ */
 @Repository
 public interface UserRepository extends MongoRepository<User, String> {
     Optional<User> findByUsername(String username);

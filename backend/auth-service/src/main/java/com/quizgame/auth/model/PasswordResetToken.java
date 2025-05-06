@@ -8,6 +8,10 @@ import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.time.Instant;
 
+/**
+ * Đại diện cho một token dùng để đặt lại mật khẩu.
+ * Lưu trong MongoDB và có thời gian hết hạn.
+ */
 @Document(collection = "passwordResetTokens")
 @Data
 @NoArgsConstructor

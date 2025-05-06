@@ -4,6 +4,10 @@ import com.quizgame.user.model.User;
 import lombok.Data;
 import java.util.Set;
 
+/**
+ * DTO đại diện cho thông tin người dùng sẽ được trả về cho client.
+ * Không chứa mật khẩu.
+ */
 @Data
 public class UserDTO {
     private String id;
@@ -13,6 +17,11 @@ public class UserDTO {
     private int score;
     private Set<String> roles;
 
+    /**
+     * Phương thức factory để chuyển đổi từ đối tượng User model sang UserDTO.
+     * @param user Đối tượng User model.
+     * @return Đối tượng UserDTO tương ứng.
+     */
     public static UserDTO fromUser(User user) {
         UserDTO dto = new UserDTO();
         dto.setId(user.getId());

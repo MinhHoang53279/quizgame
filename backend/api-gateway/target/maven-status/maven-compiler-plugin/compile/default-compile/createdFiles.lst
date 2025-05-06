@@ -1,3 +1,4 @@
+com\quizgame\apigateway\config\CorsConfig.class
 com\quizgame\apigateway\filter\RouteValidator.class
 com\quizgame\apigateway\util\JwtUtil.class
 com\quizgame\apigateway\filter\AuthenticationFilter.class

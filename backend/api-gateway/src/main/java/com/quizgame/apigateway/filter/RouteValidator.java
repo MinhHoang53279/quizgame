@@ -6,19 +6,26 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.function.Predicate;
 
+/**
+ * Component giúp xác định xem một request có cần xác thực hay không.
+ * Dựa trên việc kiểm tra URI của request có nằm trong danh sách các endpoint công khai không.
+ */
 @Component
 public class RouteValidator {
 
-    // List of public endpoints (no auth required)
+    // Danh sách các endpoint công khai (không yêu cầu xác thực JWT)
     public static final List<String> openApiEndpoints = List.of(
             "/api/auth/register",
             "/api/auth/login",
-            "/eureka" // Allow eureka internal traffic
+            "/api/auth/forgot-password", // Thêm forgot-password
+            "/api/auth/reset-password", // Thêm reset-password
+            "/eureka" // Cho phép truy cập nội bộ của Eureka
             // Add other public endpoints like swagger if needed
     );
 
-    // Predicate to check if the request URI matches any public endpoint
-    public Predicate<ServerHttpRequest> isSecured = 
+    // Predicate để kiểm tra: trả về true nếu request cần được bảo mật (secured),
+    // tức là URI không khớp với bất kỳ endpoint công khai nào.
+    public Predicate<ServerHttpRequest> isSecured =
             request -> openApiEndpoints
                     .stream()
                     .noneMatch(uri -> request.getURI().getPath().contains(uri));

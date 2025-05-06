@@ -6,6 +6,10 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/**
+ * DTO đại diện cho phản hồi JWT, thường chứa token và thông tin người dùng cơ bản.
+ * (Lưu ý: Lớp AuthResponse có vẻ đang được sử dụng thay thế lớp này).
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

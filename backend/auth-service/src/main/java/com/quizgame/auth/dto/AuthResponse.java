@@ -1,9 +1,11 @@
 package com.quizgame.auth.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO (Data Transfer Object) chứa thông tin trả về sau khi đăng nhập hoặc đăng ký thành công.
+ */
 @Data
 @NoArgsConstructor
 public class AuthResponse {

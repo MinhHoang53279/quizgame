@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../data/providers/user_provider.dart';
 
+/**
+  * Màn hình chính sau khi người dùng đăng nhập thành công.
+  * Hiển thị thông tin người dùng và nút đăng xuất.
+ */
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Lấy thông tin người dùng hiện tại từ UserProvider
+    final user = Provider.of<UserProvider>(context).currentUser;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.purple[400],
@@ -25,31 +34,37 @@ class HomeScreen extends StatelessWidget {
             const Text('Quiz App'),
           ],
         ),
+        actions: [
+          // Nút đăng xuất
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Đăng xuất',
+            onPressed: () async {
+              // Gọi provider để đăng xuất và quay về màn hình login
+              await Provider.of<UserProvider>(context, listen: false).logout();
+              // Đảm bảo context vẫn hợp lệ trước khi điều hướng
+              if (context.mounted) {
+                 Navigator.pushReplacementNamed(context, '/login');
+              }
+            },
+          ),
+        ],
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Chào mừng đến với Quiz App!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/login');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple[400],
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+        child: user == null
+            ? const CircularProgressIndicator() // Hiển thị loading nếu chưa có user
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Chào mừng trở lại, ${user.fullName}!'),
+                  const SizedBox(height: 10),
+                  Text('Username: ${user.username}'),
+                  Text('Email: ${user.email}'),
+                  Text('Vai trò: ${user.roles.join(', ')}'), // Hiển thị roles
+                  Text('Điểm: ${user.score}'), // Hiển thị điểm
+                  // Thêm các widget khác tại đây...
+                ],
               ),
-              child: const Text(
-                'Đăng xuất',
-                style: TextStyle(fontSize: 16, color: Colors.white),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

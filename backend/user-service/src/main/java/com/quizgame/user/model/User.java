@@ -10,6 +10,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Model đại diện cho người dùng trong User Service.
+ * Chứa thông tin hồ sơ người dùng như username, email, tên đầy đủ, điểm, vai trò.
+ * @Document chỉ định collection trong MongoDB.
+ */
 @Data
 @Document(collection = "users")
 public class User {
