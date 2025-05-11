@@ -13,14 +13,13 @@ class AdminDashboardService {
     if (envUrl.isNotEmpty) {
       return envUrl;
     }
-    // Assuming API Gateway is running on 8080 and routes /api/admin/**
-    // TODO: Refactor base URL logic into a shared config/utility
+    // API Gateway is running on 8090 and routes /api/admin/**
     if (kIsWeb) {
-        return 'http://localhost:8080/api/admin'; // Use localhost for web
+        return 'http://localhost:8090/api/admin'; // Trỏ đến API Gateway, cổng 8090
     } else if (Platform.isAndroid) {
-      return 'http://10.0.2.2:8080/api/admin'; // Emulator access to host localhost:8080
+      return 'http://10.0.2.2:8090/api/admin'; // Trỏ đến API Gateway, cổng 8090
     } else { // iOS or Desktop
-      return 'http://localhost:8080/api/admin'; // Use localhost for others
+      return 'http://localhost:8090/api/admin'; // Trỏ đến API Gateway, cổng 8090
     }
   }
 

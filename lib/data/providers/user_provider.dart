@@ -42,25 +42,52 @@ class UserProvider with ChangeNotifier {
     notifyListeners(); // Thông báo bắt đầu tải
 
     try {
+      print('UserProvider.login called for username: $username');
       // Gọi API đăng nhập
       final authData = await _authService.login(
         username: username,
         password: password,
-      );
-      
-      // Lấy thông tin người dùng trực tiếp từ phản hồi đăng nhập (AuthResponse)
-      _currentUser = User(
-          id: authData['id'] as String, 
-          username: authData['username'] as String, 
-          email: authData['email'] as String, 
-          fullName: authData['fullName'] as String, 
-          score: authData['score'] as int, 
-          roles: [(authData['role'] as String?) ?? 'USER'] 
-      );
+      ).timeout(const Duration(seconds: 10), onTimeout: () {
+        print('Auth service login request timed out');
+        throw Exception('Login request timed out. Please try again.');
+      });
 
-      _isLoading = false;
-      notifyListeners(); // Thông báo tải xong, cập nhật UI
-      return true;
+      print('UserProvider received authData: $authData');
+
+      if (authData == null) {
+        print('ERROR: authData is null');
+        _error = 'Received null response from server';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+
+      try {
+        // Lấy thông tin người dùng trực tiếp từ phản hồi đăng nhập (AuthResponse)
+        _currentUser = User(
+            id: authData['id'] as String,
+            username: authData['username'] as String,
+            email: authData['email'] as String,
+            fullName: authData['fullName'] as String,
+            score: authData['score'] as int,
+            roles: [(authData['role'] as String?) ?? 'USER']
+        );
+
+        // DEBUG: In ra thông tin người dùng sau khi đăng nhập
+        print('User logged in: ${_currentUser?.username}');
+        print('User roles: ${_currentUser?.roles}');
+
+        _isLoading = false;
+        notifyListeners(); // Thông báo tải xong, cập nhật UI
+        print('UserProvider.login returning true - login successful');
+        return true;
+      } catch (parseError) {
+        print('Error parsing auth data: $parseError');
+        _error = 'Error processing server response: $parseError';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
     } catch (e) {
       _error = e.toString().replaceFirst("Exception: ", ""); // Lưu lỗi
       _isLoading = false;
@@ -96,19 +123,19 @@ class UserProvider with ChangeNotifier {
         password: password,
         fullName: fullName,
       );
-      
+
       // Tạo đối tượng User từ dữ liệu trả về bởi auth service
       _currentUser = User(
-         id: authData['id'] as String, 
-         username: authData['username'] as String, 
-         email: authData['email'] as String, 
-         fullName: authData['fullName'] as String, 
-         score: authData['score'] as int, 
-         roles: [(authData['role'] as String?) ?? 'USER'] 
+         id: authData['id'] as String,
+         username: authData['username'] as String,
+         email: authData['email'] as String,
+         fullName: authData['fullName'] as String,
+         score: authData['score'] as int,
+         roles: [(authData['role'] as String?) ?? 'USER']
       );
 
       // Token đã được lưu trong AuthService
-      
+
       _isLoading = false;
       notifyListeners();
       return true;
@@ -337,4 +364,4 @@ class UserProvider with ChangeNotifier {
       return null;
     }
   }
-} 
+}

@@ -1,3 +1,16 @@
+server:
+  port: 8090 # Đặt lại cổng API Gateway thành 8090
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/}
+    register-with-eureka: true # Gateway cũng đăng ký với Eureka (tùy chọn)
+    fetch-registry: true
+  instance:
+    preferIpAddress: true
+    instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
 spring:
   application:
     name: api-gateway # Tên ứng dụng gateway
@@ -7,10 +20,10 @@ spring:
         locator:
           enabled: true # Bật tự động tìm kiếm service qua Eureka
           lower-case-service-id: true # Chuyển tên service thành chữ thường khi tạo route tự động (nếu dùng)
-      globalcors:
+      globalcors: # Kích hoạt lại phần này
         cors-configurations:
-          '[/**]': # Apply to all paths
-            allowedOrigins: "*" # Allow any origin (use with caution, dev only!)
+          '[/**]': # Áp dụng cho tất cả các đường dẫn
+            allowedOrigins: "*" # Cho phép tất cả origins
             allowedMethods:
               - "GET"
               - "POST"
@@ -18,15 +31,17 @@ spring:
               - "DELETE"
               - "OPTIONS"
               - "PATCH"
-            allowedHeaders:
+            allowedHeaders: # Thêm các header cần thiết
               - "Authorization"
               - "Content-Type"
               - "Accept"
               - "X-Requested-With"
               - "Origin"
-            # allowCredentials: false # Default is false, generally cannot be true with allowedOrigins="*"
+              - "Access-Control-Request-Method"
+              - "Access-Control-Request-Headers"
+            allowCredentials: false # Đặt thành false khi dùng allowedOrigins: "*"
             maxAge: 3600
-      # ... other gateway configurations like routes ... 
+      # ... other gateway configurations like routes ...
       routes:
         # Route cho Auth Service
         - id: auth-service-route
@@ -34,8 +49,7 @@ spring:
           predicates:
             - Path=/api/auth/** # Match các đường dẫn bắt đầu bằng /api/auth/
           filters:
-            # Viết lại đường dẫn: /api/auth/(segment) -> /$\{segment}
-            - RewritePath=/api/auth/(?<segment>.*), /$\{segment}
+            - RewritePath=/api/auth/(?<segment>.*), /api/auth/$\{segment}
 
         # Route cho User Service (Ví dụ đường dẫn, cần điều chỉnh nếu User Service có API khác)
         - id: user-service-route
@@ -51,7 +65,7 @@ spring:
           uri: lb://quiz-service
           predicates:
             # Giả sử API quản lý quiz nằm dưới /api/admin/quizzes/
-            - Path=/api/admin/quizzes/** 
+            - Path=/api/admin/quizzes/**
           filters:
             - RewritePath=/api/admin/quizzes/(?<segment>.*), /$\{segment}
 
@@ -64,10 +78,30 @@ spring:
           filters:
             - RewritePath=/api/admin/questions/(?<segment>.*), /$\{segment}
 
+        # Route cho Categories API
+        - id: categories-api-route
+          uri: lb://question-service
+          predicates:
+            - Path=/api/categories/**
+          filters:
+            - RewritePath=/api/categories/(?<segment>.*), /api/categories/$\{segment}
+
+        # Route cho Questions API
+        - id: questions-api-route
+          uri: lb://question-service
+          predicates:
+            - Path=/api/questions/**
+
+        # Route cho Quizzes API
+        - id: quizzes-api-route
+          uri: lb://quiz-service
+          predicates:
+            - Path=/api/quizzes/**
+
         # --- Route cho Settings Service (MỚI) ---
         - id: settings-service-route
           # uri: lb://SETTINGS-SERVICE # Giữ lại URL trực tiếp để test, hoặc đổi lại lb nếu muốn test discovery
-          uri: http://localhost:8086    
+          uri: http://localhost:8086
           predicates:
             # Match các đường dẫn cho settings admin
             - Path=/api/admin/settings/**
@@ -78,28 +112,27 @@ spring:
 
         # Route cho Admin Dashboard Service
         - id: admin-dashboard-service-route
-          uri: lb://admin-dashboard-service
+          uri: lb://admin-dashboard-service # Sử dụng tên service ID chữ thường, khớp với spring.application.name
           predicates:
-            # Match các đường dẫn cho dashboard admin
-            - Path=/api/admin/dashboard/**
+            - Path=/api/admin/** # Match các đường dẫn bắt đầu bằng /api/admin/
           filters:
-            # Viết lại đường dẫn: /api/admin/dashboard/(segment) -> /api/admin/(segment)
-            # Vì DashboardController lắng nghe trên /api/admin/
-            - RewritePath=/api/admin/dashboard/(?<segment>.*), /api/admin/$\{segment}
+            # Bỏ RewritePath nếu admin-dashboard-service đã xử lý /api/admin trong @RequestMapping của Controller
+            # Nếu DashboardController của admin-dashboard-service có @RequestMapping("/api/admin")
+            # thì không cần RewritePath này, hoặc phải đảm bảo nó rewrite đúng.
+            # Ví dụ: nếu controller không có /api/admin, thì: 
+            # - RewritePath=/api/admin/(?<segment>.*), /$\{segment}
+            # Nếu controller có /api/admin rồi, thì không cần rewrite, hoặc:
+            # - RewritePath=/api/admin/(?<segment>.*), /api/admin/$\{segment} # (giữ nguyên, thường không cần thiết)
+            - name: AuthenticationFilter # Áp dụng AuthenticationFilter nếu cần bảo vệ các endpoint admin
 
-server:
-  port: 8080 # Cổng mặc định cho Gateway
-
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/} 
-    register-with-eureka: true # Gateway cũng đăng ký với Eureka (tùy chọn)
-    fetch-registry: true
 
 # Cấu hình logging (Tùy chọn)
 logging:
   level:
     org.springframework.cloud.gateway: TRACE # Log chi tiết gateway để debug routing
     reactor.netty.http.client: DEBUG # Log HTTP client của gateway
-    root: INFO 
+    root: INFO
+
+# JWT Configuration
+jwt:
+  secret: quizgameSecretKey1234567890123456789012345678901234567890

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class UserService {
-  static const String baseUrl = 'http://localhost:8080/api/users'; // API Gateway URL
+  static const String baseUrl = 'http://localhost:8090/api/users'; // API Gateway URL
 
   // Create a new user
   Future<Map<String, dynamic>> createUser({

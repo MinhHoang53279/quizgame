@@ -216,62 +216,124 @@ class _CreateQuestionScreenState extends State<CreateQuestionScreen> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: DropdownButtonFormField<String>(
-                                  value: _selectedCategory,
-                                  decoration: InputDecoration(
-                                    labelText: 'Category',
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              // Nếu màn hình quá nhỏ, hiển thị theo chiều dọc
+                              if (constraints.maxWidth < 600) {
+                                return Column(
+                                  children: [
+                                    DropdownButtonFormField<String>(
+                                      value: _selectedCategory,
+                                      decoration: InputDecoration(
+                                        labelText: 'Category',
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                      ),
+                                      items: _categories.map((String category) {
+                                        return DropdownMenuItem<String>(
+                                          value: category,
+                                          child: Text(category),
+                                        );
+                                      }).toList(),
+                                      onChanged: (String? newValue) {
+                                        if (newValue != null) {
+                                          setState(() {
+                                            _selectedCategory = newValue;
+                                          });
+                                        }
+                                      },
                                     ),
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                  ),
-                                  items: _categories.map((String category) {
-                                    return DropdownMenuItem<String>(
-                                      value: category,
-                                      child: Text(category),
-                                    );
-                                  }).toList(),
-                                  onChanged: (String? newValue) {
-                                    if (newValue != null) {
-                                      setState(() {
-                                        _selectedCategory = newValue;
-                                      });
-                                    }
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: DropdownButtonFormField<String>(
-                                  value: _selectedDifficulty,
-                                  decoration: InputDecoration(
-                                    labelText: 'Difficulty',
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                    const SizedBox(height: 16),
+                                    DropdownButtonFormField<String>(
+                                      value: _selectedDifficulty,
+                                      decoration: InputDecoration(
+                                        labelText: 'Difficulty',
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                      ),
+                                      items: _difficulties.map((String difficulty) {
+                                        return DropdownMenuItem<String>(
+                                          value: difficulty,
+                                          child: Text(difficulty),
+                                        );
+                                      }).toList(),
+                                      onChanged: (String? newValue) {
+                                        if (newValue != null) {
+                                          setState(() {
+                                            _selectedDifficulty = newValue;
+                                          });
+                                        }
+                                      },
                                     ),
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                  ),
-                                  items: _difficulties.map((String difficulty) {
-                                    return DropdownMenuItem<String>(
-                                      value: difficulty,
-                                      child: Text(difficulty),
-                                    );
-                                  }).toList(),
-                                  onChanged: (String? newValue) {
-                                    if (newValue != null) {
-                                      setState(() {
-                                        _selectedDifficulty = newValue;
-                                      });
-                                    }
-                                  },
-                                ),
-                              ),
-                            ],
+                                  ],
+                                );
+                              } else {
+                                // Nếu màn hình đủ rộng, hiển thị theo chiều ngang
+                                return Row(
+                                  children: [
+                                    Expanded(
+                                      child: DropdownButtonFormField<String>(
+                                        value: _selectedCategory,
+                                        decoration: InputDecoration(
+                                          labelText: 'Category',
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                        ),
+                                        items: _categories.map((String category) {
+                                          return DropdownMenuItem<String>(
+                                            value: category,
+                                            child: Text(category),
+                                          );
+                                        }).toList(),
+                                        onChanged: (String? newValue) {
+                                          if (newValue != null) {
+                                            setState(() {
+                                              _selectedCategory = newValue;
+                                            });
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: DropdownButtonFormField<String>(
+                                        value: _selectedDifficulty,
+                                        decoration: InputDecoration(
+                                          labelText: 'Difficulty',
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                        ),
+                                        items: _difficulties.map((String difficulty) {
+                                          return DropdownMenuItem<String>(
+                                            value: difficulty,
+                                            child: Text(difficulty),
+                                          );
+                                        }).toList(),
+                                        onChanged: (String? newValue) {
+                                          if (newValue != null) {
+                                            setState(() {
+                                              _selectedDifficulty = newValue;
+                                            });
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }
+                            },
                           ),
                         ],
                       ),
@@ -301,61 +363,134 @@ class _CreateQuestionScreenState extends State<CreateQuestionScreen> {
                           ...List.generate(4, (index) {
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 16.0),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: TextFormField(
-                                      controller: _optionControllers[index],
-                                      decoration: InputDecoration(
-                                        labelText: 'Option ${index + 1}',
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                        hintText: 'Enter option ${index + 1}',
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                      ),
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please enter option ${index + 1}';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                    decoration: BoxDecoration(
-                                      color: _correctAnswerIndex == index
-                                          ? Theme.of(context).primaryColor.withOpacity(0.1)
-                                          : Colors.grey[100],
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: _correctAnswerIndex == index
-                                            ? Theme.of(context).primaryColor
-                                            : Colors.grey.shade300,
-                                      ),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  // Nếu màn hình quá nhỏ, hiển thị theo chiều dọc
+                                  if (constraints.maxWidth < 450) {
+                                    return Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Radio<int>(
-                                          value: index,
-                                          groupValue: _correctAnswerIndex,
-                                          onChanged: (int? value) {
-                                            if (value != null) {
-                                              setState(() {
-                                                _correctAnswerIndex = value;
-                                              });
+                                        TextFormField(
+                                          controller: _optionControllers[index],
+                                          decoration: InputDecoration(
+                                            labelText: 'Option ${index + 1}',
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(12),
+                                            ),
+                                            hintText: 'Enter option ${index + 1}',
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                          ),
+                                          validator: (value) {
+                                            if (value == null || value.isEmpty) {
+                                              return 'Please enter option ${index + 1}';
                                             }
+                                            return null;
                                           },
                                         ),
-                                        const Text('Correct'),
+                                        const SizedBox(height: 8),
+                                        InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              _correctAnswerIndex = index;
+                                            });
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: _correctAnswerIndex == index
+                                                  ? Theme.of(context).primaryColor.withOpacity(0.1)
+                                                  : Colors.grey[100],
+                                              borderRadius: BorderRadius.circular(12),
+                                              border: Border.all(
+                                                color: _correctAnswerIndex == index
+                                                    ? Theme.of(context).primaryColor
+                                                    : Colors.grey.shade300,
+                                              ),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Radio<int>(
+                                                  value: index,
+                                                  groupValue: _correctAnswerIndex,
+                                                  onChanged: (int? value) {
+                                                    if (value != null) {
+                                                      setState(() {
+                                                        _correctAnswerIndex = value;
+                                                      });
+                                                    }
+                                                  },
+                                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                ),
+                                                const Text('Correct', style: TextStyle(fontSize: 13)),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
                                       ],
-                                    ),
-                                  ),
-                                ],
+                                    );
+                                  } else {
+                                    // Nếu màn hình đủ rộng, hiển thị theo chiều ngang
+                                    return Row(
+                                      children: [
+                                        Expanded(
+                                          child: TextFormField(
+                                            controller: _optionControllers[index],
+                                            decoration: InputDecoration(
+                                              labelText: 'Option ${index + 1}',
+                                              border: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(12),
+                                              ),
+                                              hintText: 'Enter option ${index + 1}',
+                                              filled: true,
+                                              fillColor: Colors.white,
+                                            ),
+                                            validator: (value) {
+                                              if (value == null || value.isEmpty) {
+                                                return 'Please enter option ${index + 1}';
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: _correctAnswerIndex == index
+                                                ? Theme.of(context).primaryColor.withOpacity(0.1)
+                                                : Colors.grey[100],
+                                            borderRadius: BorderRadius.circular(12),
+                                            border: Border.all(
+                                              color: _correctAnswerIndex == index
+                                                  ? Theme.of(context).primaryColor
+                                                  : Colors.grey.shade300,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Radio<int>(
+                                                value: index,
+                                                groupValue: _correctAnswerIndex,
+                                                onChanged: (int? value) {
+                                                  if (value != null) {
+                                                    setState(() {
+                                                      _correctAnswerIndex = value;
+                                                    });
+                                                  }
+                                                },
+                                                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                              ),
+                                              const Text('Correct', style: TextStyle(fontSize: 13)),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }
+                                },
                               ),
                             );
                           }),
@@ -437,7 +572,7 @@ class _CreateQuestionScreenState extends State<CreateQuestionScreen> {
   void _submitQuestion() async {
     if (_formKey.currentState!.validate()) {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
-      
+
       // Show loading indicator
       showDialog(
         context: context,
@@ -515,4 +650,4 @@ class _CreateQuestionScreenState extends State<CreateQuestionScreen> {
       }
     }
   }
-} 
+}

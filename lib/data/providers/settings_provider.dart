@@ -99,7 +99,7 @@ class SettingsProvider with ChangeNotifier {
   }
 
   // TODO: Replace with actual base URL from config/env
-  final String _baseUrl = 'http://localhost:8080/api/admin/settings'; 
+  final String _baseUrl = 'http://localhost:8090/api/admin/settings'; // Trỏ đến API Gateway, cổng 8090
 
   // Helper to get headers
   Map<String, String> _getHeaders() {

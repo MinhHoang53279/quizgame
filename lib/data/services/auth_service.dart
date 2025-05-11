@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io' show Platform, HttpException, SocketException; // Import Platform
+import 'dart:math';
 import 'package:flutter/foundation.dart' show kIsWeb; // Import kIsWeb for web check
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,20 +15,20 @@ class AuthService {
 
     if (kIsWeb) {
       // Running on the web
-      return 'http://localhost:8080/api/auth';
+      return 'http://localhost:8090/api/auth';
     } else if (Platform.isAndroid) {
       // Running on Android emulator or device
       // Use 10.0.2.2 for Emulator, for physical device use host machine IP
       // TODO: Consider using a configuration or discovery mechanism for physical devices
-      return 'http://10.0.2.2:8080/api/auth'; // Defaulting to emulator
+      return 'http://10.0.2.2:8090/api/auth';
     } else if (Platform.isIOS) {
       // Running on iOS simulator or device
       // Use localhost for Simulator, for physical device use host machine IP
       // TODO: Consider using a configuration or discovery mechanism for physical devices
-       return 'http://localhost:8080/api/auth'; // Defaulting to simulator
+       return 'http://localhost:8090/api/auth';
     } else {
        // Other platforms (Desktop - Windows, macOS, Linux)
-       return 'http://localhost:8080/api/auth';
+       return 'http://localhost:8090/api/auth';
     }
   }
 
@@ -47,20 +48,29 @@ class AuthService {
     print('Attempting POST to $loginUrl with username: $username');
 
     try {
+      // Bỏ qua OPTIONS request vì Client không hỗ trợ phương thức options
+      // Sử dụng trực tiếp POST request
+
+      // Thêm timeout để tránh chờ vô hạn
       final response = await _client.post(
         loginUrl,
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
           'Accept': 'application/json',
+          'Origin': 'http://localhost',
         },
         body: jsonEncode(<String, String>{
           'username': username,
           'password': password,
         }),
-      );
+      ).timeout(const Duration(seconds: 15), onTimeout: () {
+        print('Login request timed out after 15 seconds');
+        throw Exception('Login request timed out. Please try again.');
+      });
 
       print('Login response status: ${response.statusCode}');
-      // print('Login response body: ${response.body}'); // Avoid logging sensitive data like tokens in production
+      print('Login response headers: ${response.headers}');
+      print('Login response body: ${response.body}'); // DEBUG: Log response body to diagnose issues
 
       return _handleAuthResponse(response);
 
@@ -245,16 +255,28 @@ class AuthService {
   // --- Helper methods ---
 
   Future<Map<String, dynamic>> _handleAuthResponse(http.Response response) async {
+    print('_handleAuthResponse called with status: ${response.statusCode}');
+
     if (response.statusCode == 200) {
       try {
+        print('Trying to parse response body: ${response.body}');
+        if (response.body.isEmpty) {
+          print('ERROR: Empty response body');
+          throw const FormatException('Empty response from server.');
+        }
+
         final data = jsonDecode(response.body) as Map<String, dynamic>;
+        print('Parsed data: $data');
+
         if (data['token'] != null) {
           await _saveToken(data['token']);
-           print('Login successful, token saved.');
-           // Return user details along with token if needed, e.g., username, roles
-           // Adjust the return value based on your backend's AuthResponse DTO
+          print('Login successful, token saved: ${data['token'].substring(0, min(10, data['token'].length))}...');
+          print('User data: ${data['username']}, roles: ${data['role']}');
+          // Return user details along with token if needed, e.g., username, roles
+          // Adjust the return value based on your backend's AuthResponse DTO
           return data;
         } else {
+          print('ERROR: Token not found in response data');
           throw const FormatException('Token not found in login response.');
         }
       } on FormatException catch (e) {
@@ -337,4 +359,4 @@ class AuthService {
         }; // Return non-auth headers if no token
      }
   }
-} 
+}

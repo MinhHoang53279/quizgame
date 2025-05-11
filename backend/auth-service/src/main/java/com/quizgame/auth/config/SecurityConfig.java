@@ -5,6 +5,7 @@ import com.quizgame.auth.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -15,6 +16,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+// import org.springframework.web.cors.CorsConfiguration; // Tạm vô hiệu hóa
+// import org.springframework.web.cors.CorsConfigurationSource; // Tạm vô hiệu hóa
+// import org.springframework.web.cors.UrlBasedCorsConfigurationSource; // Tạm vô hiệu hóa
+
+// import java.util.Arrays; // Tạm vô hiệu hóa
+// import java.util.Collections; // Tạm vô hiệu hóa
 
 /**
  * Lớp cấu hình chính cho Spring Security.
@@ -39,12 +46,14 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable()) // Vô hiệu hóa CSRF vì sử dụng API stateless
+            // .cors(cors -> cors.configurationSource(corsConfigurationSource())) // TẠM THỜI VÔ HIỆU HÓA CORS Ở AUTH-SERVICE
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Không tạo session
             .authorizeHttpRequests(auth -> auth
                 // QUAN TRỌNG: Định nghĩa quy tắc permitAll() TRƯỚC
                 .requestMatchers("/api/auth/**").permitAll() // Cho phép tất cả các yêu cầu đến /api/auth/**
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Cho phép tất cả các yêu cầu OPTIONS
                 // Sau đó định nghĩa quy tắc cho các yêu cầu khác
-                .anyRequest().authenticated() // Mọi yêu cầu khác cần được xác thực
+                .anyRequest().permitAll() // Tạm thời cho phép tất cả các yêu cầu để kiểm tra
             )
             .authenticationProvider(authenticationProvider()) // Cung cấp authentication provider
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class); // Thêm bộ lọc JWT
@@ -87,4 +96,25 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-} 
+
+    /* // TẠM THỜI VÔ HIỆU HÓA TOÀN BỘ BEAN NÀY
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Collections.singletonList("*")); // Cho phép tất cả origins
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")); // Cho phép các phương thức HTTP
+        configuration.setAllowedHeaders(Arrays.asList(
+            "Authorization", "Content-Type", "Accept", 
+            "X-Requested-With", "Origin", 
+            "Access-Control-Request-Method", "Access-Control-Request-Headers"
+        )); // Mở rộng các header được phép
+        configuration.setExposedHeaders(Arrays.asList("Authorization")); // Cho phép client truy cập header Authorization
+        configuration.setAllowCredentials(false); // Đặt thành false khi dùng allowedOrigins: "*"
+        configuration.setMaxAge(3600L); // Thời gian cache preflight request
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration); // Áp dụng cho tất cả các đường dẫn
+        return source;
+    }
+    */
+}

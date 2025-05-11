@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.*;
  * Controller xử lý các yêu cầu liên quan đến xác thực như đăng nhập, đăng ký,
  * quên mật khẩu và đặt lại mật khẩu.
  */
-// Removed @CrossOrigin annotation as CORS is handled globally by the API Gateway
-// @CrossOrigin(origins = "*", maxAge = 3600)
+// CORS is now enabled at global level in SecurityConfig.java
+// @CrossOrigin(origins = "*", maxAge = 3600, allowedHeaders = {"Content-Type", "Authorization"}) // Vô hiệu hóa để tránh xung đột
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -25,10 +25,28 @@ public class AuthController {
      * @param request Chứa username và password.
      * @return ResponseEntity chứa AuthResponse (token và thông tin người dùng) nếu thành công.
      */
+    /**
+     * Endpoint xử lý OPTIONS request cho CORS preflight.
+     * Vô hiệu hóa vì đã có cấu hình CORS toàn cục trong SecurityConfig.java
+     * @return ResponseEntity với các header CORS.
+     */
+    // @RequestMapping(value = "/login", method = RequestMethod.OPTIONS)
+    // public ResponseEntity<?> handleOptionsRequest() {
+    //     System.out.println("OPTIONS request received for /login endpoint");
+    //     return ResponseEntity.ok().build();
+    // }
+
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        AuthResponse response = authService.login(request);
-        return ResponseEntity.ok(response);
+        System.out.println("Login request received for username: " + request.getUsername());
+        try {
+            AuthResponse response = authService.login(request);
+            System.out.println("Login successful for user: " + request.getUsername());
+            return ResponseEntity.ok(response); // Không thêm header CORS vì đã được xử lý bởi cấu hình CORS toàn cục
+        } catch (Exception e) {
+            System.err.println("Login failed for user: " + request.getUsername() + ", error: " + e.getMessage());
+            throw e; // Re-throw to let global exception handler handle it
+        }
     }
 
     /**
@@ -78,4 +96,4 @@ public class AuthController {
              return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-} 
+}

@@ -40,20 +40,20 @@ class AdminDashboardProvider with ChangeNotifier {
 
     try {
       // Fetch summary data
-      final summaryResponse = await http.get(Uri.parse('http://localhost:8080/api/admin/summary'));
+      final summaryResponse = await http.get(Uri.parse('http://localhost:8090/api/admin/summary'));
       if (summaryResponse.statusCode == 200) {
         _summaryData = DashboardSummaryDTO.fromJson(json.decode(summaryResponse.body));
       }
 
       // Fetch recent activities
-      final activitiesResponse = await http.get(Uri.parse('http://localhost:8080/api/admin/activities'));
+      final activitiesResponse = await http.get(Uri.parse('http://localhost:8090/api/admin/activities'));
       if (activitiesResponse.statusCode == 200) {
         final List<dynamic> activitiesJson = json.decode(activitiesResponse.body);
         _recentActivities = activitiesJson.map((json) => UserActivityDTO.fromJson(json)).toList();
       }
 
       // Fetch top users
-      final usersResponse = await http.get(Uri.parse('http://localhost:8080/api/admin/top-users'));
+      final usersResponse = await http.get(Uri.parse('http://localhost:8090/api/admin/top-users'));
       if (usersResponse.statusCode == 200) {
         final List<dynamic> usersJson = json.decode(usersResponse.body);
         _topUsers = usersJson.map((json) => TopUserDTO.fromJson(json)).toList();
@@ -136,7 +136,7 @@ class AdminDashboardProvider with ChangeNotifier {
   Future<void> addActivity(UserActivityDTO activity) async {
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:8080/api/admin/activities'),
+        Uri.parse('http://localhost:8090/api/admin/activities'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(activity.toJson()),
       );
@@ -155,7 +155,7 @@ class AdminDashboardProvider with ChangeNotifier {
   Future<void> updateUserPoints(String userId, int points) async {
     try {
       final response = await http.put(
-        Uri.parse('http://localhost:8080/api/admin/users/$userId/points'),
+        Uri.parse('http://localhost:8090/api/admin/users/$userId/points'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'points': points}),
       );
@@ -174,7 +174,7 @@ class AdminDashboardProvider with ChangeNotifier {
   Future<void> deleteActivity(String activityId) async {
     try {
       final response = await http.delete(
-        Uri.parse('http://localhost:8080/api/admin/activities/$activityId'),
+        Uri.parse('http://localhost:8090/api/admin/activities/$activityId'),
       );
 
       if (response.statusCode == 200) {

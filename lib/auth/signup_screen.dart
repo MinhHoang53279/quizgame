@@ -231,11 +231,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                 const SizedBox(height: 10),
                 // Chuyển sang trang đăng nhập
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 4,
                   children: [
                     const Text(
-                      'Đã có tài khoản? ',
+                      'Đã có tài khoản?',
                       style: TextStyle(color: Colors.grey),
                     ),
                     TextButton(

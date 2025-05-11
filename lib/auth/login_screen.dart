@@ -45,10 +45,18 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         // Gọi UserProvider để xử lý đăng nhập
         final userProvider = Provider.of<UserProvider>(context, listen: false);
+        print('Calling userProvider.login with username: ${_usernameController.text}');
+
+        // Thêm timeout để tránh chờ vô hạn
         final success = await userProvider.login(
           username: _usernameController.text,
           password: _passwordController.text,
-        );
+        ).timeout(const Duration(seconds: 15), onTimeout: () {
+          print('Login operation timed out after 15 seconds');
+          throw Exception('Login operation timed out. Please try again.');
+        });
+
+        print('Login result: $success');
 
         if (success && mounted) {
           // Đăng nhập thành công, lấy token từ AuthService và cập nhật SettingsProvider
@@ -62,18 +70,30 @@ class _LoginScreenState extends State<LoginScreen> {
 
           // Kiểm tra vai trò để điều hướng
           final roles = userProvider.currentUser?.roles ?? [];
-          
-          // DEBUG: In ra danh sách vai trò
-          print('User roles after login: $roles'); 
 
-          if (roles.contains('ADMIN')) {
-            print('Navigating to /admin_dashboard'); // DEBUG
-            Navigator.pushReplacementNamed(context, '/admin_dashboard'); // Điều hướng đến trang admin
-          } else {
-            print('Navigating to /home'); // DEBUG
-            Navigator.pushReplacementNamed(context, '/home'); // Điều hướng đến trang home thông thường
-          }
-          
+          // DEBUG: In ra danh sách vai trò
+          print('User roles after login: $roles');
+          print('Current user: ${userProvider.currentUser?.username}');
+
+          // Hiển thị thông báo đăng nhập thành công
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Đăng nhập thành công!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          // Thêm delay ngắn để đảm bảo UI cập nhật trước khi chuyển trang
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (roles.contains('ADMIN')) {
+              print('Navigating to /admin_dashboard'); // DEBUG
+              Navigator.pushNamedAndRemoveUntil(context, '/admin_dashboard', (route) => false); // Điều hướng đến trang admin và xóa tất cả các trang trước đó
+            } else {
+              print('Navigating to /home'); // DEBUG
+              Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false); // Điều hướng đến trang home và xóa tất cả các trang trước đó
+            }
+          });
+
         } else if (mounted) {
           // Hiển thị lỗi từ UserProvider
           ScaffoldMessenger.of(context).showSnackBar(
@@ -117,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
-    
+
     return Scaffold(
       backgroundColor: AppTheme.primaryColor,
       body: Center(
@@ -230,27 +250,35 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     );
                   },
-                  child: const Text(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.purple[400],
+                  ),
+                  child: Text(
                     'Quên mật khẩu?',
-                    style: TextStyle(color: Colors.grey),
+                    style: TextStyle(color: Colors.purple[400], fontWeight: FontWeight.w500),
                   ),
                 ),
 
                 // Liên kết sang màn hình đăng ký
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 4,
                   children: [
                     const Text(
-                      'Không có tài khoản? ',
+                      'Không có tài khoản?',
                       style: TextStyle(color: Colors.grey),
                     ),
                     TextButton(
                       onPressed: () {
                         Navigator.pushNamed(context, '/signup');
                       },
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.purple[400],
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      ),
                       child: Text(
                         'Đăng ký tại đây',
-                        style: TextStyle(color: Colors.purple[400]),
+                        style: TextStyle(color: Colors.purple[400], fontWeight: FontWeight.w500),
                       ),
                     ),
                   ],

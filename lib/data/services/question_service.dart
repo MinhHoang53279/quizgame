@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/question.dart';
 
 class QuestionService {
-  static const String baseUrl = 'http://localhost:8080/api/questions'; // API Gateway URL
+  static const String baseUrl = 'http://localhost:8090/api/questions'; // API Gateway URL
 
   // Create a new question
   Future<Map<String, dynamic>> createQuestion({

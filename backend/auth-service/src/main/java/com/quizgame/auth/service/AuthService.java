@@ -56,7 +56,7 @@ public class AuthService {
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         log.info("Attempting to register user: {}", request.getUsername());
-        
+
         if (userRepository.existsByUsername(request.getUsername())) {
             log.warn("Username is already taken: {}", request.getUsername());
             throw new RuntimeException("Username is already taken!");
@@ -72,9 +72,9 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setFullName(request.getFullName());
-        
+
         // Role assignment reverted to default
-        user.setRole("USER"); 
+        user.setRole("USER");
 
         try {
             user = userRepository.save(user);
@@ -98,8 +98,13 @@ public class AuthService {
     @Transactional
     public AuthResponse login(LoginRequest request) {
         log.info("Attempting to login user: {}", request.getUsername());
-        
+
         try {
+            // Thêm log để debug
+            log.debug("Login request received with username: {} and password length: {}",
+                     request.getUsername(),
+                     request.getPassword() != null ? request.getPassword().length() : 0);
+
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
@@ -108,22 +113,31 @@ public class AuthService {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
             String jwt = jwtUtils.generateToken(userDetails);
 
-            log.info("Successfully logged in user: {}", userDetails.getUsername());
-            
+            log.info("Successfully logged in user: {}, generating JWT token", userDetails.getUsername());
+
             User loggedInUser = userRepository.findByUsername(userDetails.getUsername())
                                              .orElseThrow(() -> new RuntimeException("User vanished after authentication!")); // Should not happen
 
-            return new AuthResponse(
+            // Thêm log để debug
+            log.debug("Creating AuthResponse with token: {}, user: {}, role: {}",
+                     jwt.substring(0, Math.min(10, jwt.length())) + "...",
+                     loggedInUser.getUsername(),
+                     loggedInUser.getRole());
+
+            AuthResponse response = new AuthResponse(
                 jwt,
                 loggedInUser.getId(),
                 loggedInUser.getUsername(),
                 loggedInUser.getEmail(),
                 loggedInUser.getFullName(),
                 loggedInUser.getScore(),
-                loggedInUser.getAuthorities().iterator().next().getAuthority() // Assuming single role
+                loggedInUser.getRole() // Sử dụng trực tiếp role từ User thay vì lấy từ authorities
             );
+
+            log.info("Login successful, returning AuthResponse");
+            return response;
         } catch (Exception e) {
-            log.error("Error during login for user: {}", request.getUsername(), e);
+            log.error("Error during login for user: {}, error: {}", request.getUsername(), e.getMessage());
             throw new RuntimeException("Invalid username or password.");
         }
     }
@@ -196,4 +210,4 @@ public class AuthService {
         passwordResetTokenRepository.delete(resetToken);
         log.info("Password reset token deleted: {}", token);
     }
-} 
+}

@@ -20,6 +20,7 @@ com\quizgame\auth\dto\ResetPasswordRequest.class
 com\quizgame\auth\security\UserDetailsServiceImpl.class
 com\quizgame\auth\dto\TokenRefreshRequest.class
 com\quizgame\auth\dto\JwtResponse.class
+com\quizgame\auth\config\WebConfig.class
 com\quizgame\auth\dto\ForgotPasswordRequest.class
 com\quizgame\auth\security\UserDetailsImpl.class
 com\quizgame\auth\service\RefreshTokenService.class

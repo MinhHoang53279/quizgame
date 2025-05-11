@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/room.dart';
 
 class RoomService {
-  static const String baseUrl = 'http://localhost:8080/api/rooms';
+  static const String baseUrl = 'http://localhost:8090/api/rooms';
 
   Future<Room> createRoom(String hostId) async {
     final response = await http.post(

@@ -1,3 +1,7 @@
+com\quizgame\question\service\CategoryService.class
+com\quizgame\question\model\Category.class
+com\quizgame\question\dto\CategoryDTO.class
+com\quizgame\question\service\QuestionService.class
 com\quizgame\question\dto\QuestionDTO.class
 com\quizgame\question\QuestionApplication.class
 com\quizgame\question\config\MongoConfig.class
@@ -5,5 +9,6 @@ com\quizgame\question\config\SecurityConfig.class
 com\quizgame\question\config\CorsConfig.class
 com\quizgame\question\controller\QuestionController.class
 com\quizgame\question\repository\QuestionRepository.class
+com\quizgame\question\controller\CategoryController.class
+com\quizgame\question\repository\CategoryRepository.class
 com\quizgame\question\model\Question.class
-com\quizgame\question\service\QuestionService.class
