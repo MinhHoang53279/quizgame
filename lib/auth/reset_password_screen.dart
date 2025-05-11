@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../data/providers/user_provider.dart';
 import 'signup_screen.dart'; // Import PasswordField from signup_screen
+import '../theme.dart';
 
 /**
  * Màn hình Đặt lại mật khẩu.
@@ -94,13 +95,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.purple[400],
+      backgroundColor: AppTheme.primaryColor,
       body: Center(
         child: Container(
           padding: const EdgeInsets.all(20),
           width: 300,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppTheme.cardColor,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Form(
@@ -108,9 +109,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Logo ở đầu màn hình đặt lại mật khẩu
+                Image.asset('assets/images/image1.png', height: 100),
+                const SizedBox(height: 10),
                 const Text(
                   'Đặt lại mật khẩu',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
                 ),
                 const SizedBox(height: 15),
                 const Text(

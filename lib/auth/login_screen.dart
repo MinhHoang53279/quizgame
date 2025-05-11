@@ -7,6 +7,7 @@ import '../data/providers/user_provider.dart';
 import '../data/providers/settings_provider.dart';
 import '../data/services/auth_service.dart'; // <<< IMPORT AuthService
 import 'forgot_password_screen.dart'; // Import màn hình Quên mật khẩu
+import '../theme.dart';
 
 /**
  * Màn hình Đăng nhập.
@@ -118,14 +119,14 @@ class _LoginScreenState extends State<LoginScreen> {
     final userProvider = Provider.of<UserProvider>(context);
     
     return Scaffold(
-      backgroundColor: Colors.purple[400], // Màu nền
+      backgroundColor: AppTheme.primaryColor,
       body: Center(
         child: Container(
           padding: const EdgeInsets.all(20),
           width: 300,
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10), // Bo góc khung nhập
+            color: AppTheme.cardColor,
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Form(
             key: _formKey,
@@ -137,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 10),
                 const Text(
                   'Đăng nhập',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
                 ),
                 const SizedBox(height: 20),
 

@@ -99,71 +99,219 @@ class AdminQuestionDTO {
 class DashboardSummaryDTO {
   final UserSummaryDTO users;
   final QuizSummaryDTO quizzes;
-  final List<RecentActivityDTO> recentActivity;
+  final QuestionSummaryDTO questions;
+  final NotificationSummaryDTO notifications;
 
   DashboardSummaryDTO({
     required this.users,
     required this.quizzes,
-    required this.recentActivity,
+    required this.questions,
+    required this.notifications,
   });
 
   factory DashboardSummaryDTO.fromJson(Map<String, dynamic> json) {
     return DashboardSummaryDTO(
-      users: UserSummaryDTO.fromJson(json['users'] ?? {}),
-      quizzes: QuizSummaryDTO.fromJson(json['quizzes'] ?? {}),
-      recentActivity: (json['recent_activity'] as List<dynamic>? ?? [])
-          .map((item) => RecentActivityDTO.fromJson(item as Map<String, dynamic>? ?? {}))
-          .toList(),
+      users: UserSummaryDTO.fromJson(json['users']),
+      quizzes: QuizSummaryDTO.fromJson(json['quizzes']),
+      questions: QuestionSummaryDTO.fromJson(json['questions']),
+      notifications: NotificationSummaryDTO.fromJson(json['notifications']),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'users': users.toJson(),
+      'quizzes': quizzes.toJson(),
+      'questions': questions.toJson(),
+      'notifications': notifications.toJson(),
+    };
   }
 }
 
 class UserSummaryDTO {
   final int total;
-  final int newToday;
+  final int active;
+  final int newUsers;
 
-  UserSummaryDTO({required this.total, required this.newToday});
+  UserSummaryDTO({
+    required this.total,
+    required this.active,
+    required this.newUsers,
+  });
 
   factory UserSummaryDTO.fromJson(Map<String, dynamic> json) {
     return UserSummaryDTO(
-      total: json['total'] as int? ?? 0,
-      newToday: json['new_today'] as int? ?? 0,
+      total: json['total'],
+      active: json['active'],
+      newUsers: json['newUsers'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'total': total,
+      'active': active,
+      'newUsers': newUsers,
+    };
   }
 }
 
 class QuizSummaryDTO {
   final int total;
   final int active;
+  final int completed;
 
-  QuizSummaryDTO({required this.total, required this.active});
+  QuizSummaryDTO({
+    required this.total,
+    required this.active,
+    required this.completed,
+  });
 
   factory QuizSummaryDTO.fromJson(Map<String, dynamic> json) {
     return QuizSummaryDTO(
-      total: json['total'] as int? ?? 0,
-      active: json['active'] as int? ?? 0,
+      total: json['total'],
+      active: json['active'],
+      completed: json['completed'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'total': total,
+      'active': active,
+      'completed': completed,
+    };
   }
 }
 
-class RecentActivityDTO {
-  final String user;
-  final String action;
-  final DateTime timestamp;
+class QuestionSummaryDTO {
+  final int total;
+  final int active;
+  final int pending;
 
-  RecentActivityDTO({
-    required this.user,
-    required this.action,
-    required this.timestamp,
+  QuestionSummaryDTO({
+    required this.total,
+    required this.active,
+    required this.pending,
   });
 
-  factory RecentActivityDTO.fromJson(Map<String, dynamic> json) {
-    return RecentActivityDTO(
-      user: json['user'] as String? ?? 'Unknown User',
-      action: json['action'] as String? ?? 'Unknown Action',
-      timestamp: json['timestamp'] != null
-          ? DateTime.tryParse(json['timestamp'] as String? ?? '') ?? DateTime.now()
-          : DateTime.now(),
+  factory QuestionSummaryDTO.fromJson(Map<String, dynamic> json) {
+    return QuestionSummaryDTO(
+      total: json['total'],
+      active: json['active'],
+      pending: json['pending'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'total': total,
+      'active': active,
+      'pending': pending,
+    };
+  }
+}
+
+class NotificationSummaryDTO {
+  final int total;
+  final int unread;
+  final int sent;
+
+  NotificationSummaryDTO({
+    required this.total,
+    required this.unread,
+    required this.sent,
+  });
+
+  factory NotificationSummaryDTO.fromJson(Map<String, dynamic> json) {
+    return NotificationSummaryDTO(
+      total: json['total'],
+      unread: json['unread'],
+      sent: json['sent'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'total': total,
+      'unread': unread,
+      'sent': sent,
+    };
+  }
+}
+
+class UserActivityDTO {
+  final String id;
+  final String type;
+  final String description;
+  final DateTime timestamp;
+  final String userId;
+  final String? userName;
+
+  UserActivityDTO({
+    required this.id,
+    required this.type,
+    required this.description,
+    required this.timestamp,
+    required this.userId,
+    this.userName,
+  });
+
+  factory UserActivityDTO.fromJson(Map<String, dynamic> json) {
+    return UserActivityDTO(
+      id: json['id'],
+      type: json['type'],
+      description: json['description'],
+      timestamp: DateTime.parse(json['timestamp']),
+      userId: json['userId'],
+      userName: json['userName'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'type': type,
+      'description': description,
+      'timestamp': timestamp.toIso8601String(),
+      'userId': userId,
+      'userName': userName,
+    };
+  }
+}
+
+class TopUserDTO {
+  final String id;
+  final String name;
+  final int points;
+  final int rank;
+  final String? avatarUrl;
+
+  TopUserDTO({
+    required this.id,
+    required this.name,
+    required this.points,
+    required this.rank,
+    this.avatarUrl,
+  });
+
+  factory TopUserDTO.fromJson(Map<String, dynamic> json) {
+    return TopUserDTO(
+      id: json['id'],
+      name: json['name'],
+      points: json['points'],
+      rank: json['rank'],
+      avatarUrl: json['avatarUrl'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'points': points,
+      'rank': rank,
+      'avatarUrl': avatarUrl,
+    };
   }
 } 

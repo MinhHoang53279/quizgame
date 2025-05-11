@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme.dart';
 
 // Model for Featured Category Data
 class FeaturedCategoryInfo {

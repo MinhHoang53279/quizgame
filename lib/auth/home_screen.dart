@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../data/providers/user_provider.dart';
+import '../theme.dart';
 
 /**
   * Màn hình chính sau khi người dùng đăng nhập thành công.
@@ -16,7 +17,7 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.purple[400],
+        backgroundColor: AppTheme.primaryColor,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -27,7 +28,7 @@ class HomeScreen extends StatelessWidget {
           children: [
             // Logo ở giữa mũi tên và chữ Quiz App
             Image.asset(
-              'assets/images/image1.png', // thay đúng đường dẫn ảnh
+              'assets/images/image1.png',
               height: 50,
             ),
             const SizedBox(width: 10),
@@ -50,21 +51,46 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Center(
-        child: user == null
-            ? const CircularProgressIndicator() // Hiển thị loading nếu chưa có user
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Chào mừng trở lại, ${user.fullName}!'),
-                  const SizedBox(height: 10),
-                  Text('Username: ${user.username}'),
-                  Text('Email: ${user.email}'),
-                  Text('Vai trò: ${user.roles.join(', ')}'), // Hiển thị roles
-                  Text('Điểm: ${user.score}'), // Hiển thị điểm
-                  // Thêm các widget khác tại đây...
-                ],
-              ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppTheme.primaryColor,
+              AppTheme.secondaryColor,
+            ],
+          ),
+        ),
+        child: Center(
+          child: user == null
+              ? const CircularProgressIndicator()
+              : Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppTheme.cardColor,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Chào mừng trở lại, ${user.fullName}!',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.primaryColor,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Text('Username: ${user.username}'),
+                      Text('Email: ${user.email}'),
+                      Text('Vai trò: ${user.roles.join(', ')}'),
+                      Text('Điểm: ${user.score}'),
+                    ],
+                  ),
+                ),
+        ),
       ),
     );
   }

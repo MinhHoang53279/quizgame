@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Add provider
 import '../data/providers/user_provider.dart'; // Import UserProvider
+import '../theme.dart';
 
 // Màn hình "Quên mật khẩu" sử dụng StatefulWidget vì có sự thay đổi trạng thái (loading, xử lý)
 class ForgotPasswordScreen extends StatefulWidget {
@@ -74,13 +75,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.purple[400], // Màu nền
+      backgroundColor: AppTheme.primaryColor, // Màu nền
       body: Center(
         child: Container(
           padding: const EdgeInsets.all(20),
           width: 300,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppTheme.cardColor,
             borderRadius: BorderRadius.circular(10), // Bo góc khung form
           ),
           child: Form(
@@ -88,10 +89,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min, // Tự co giãn theo nội dung
               children: [
-                // Tiêu đề màn hình
+                // Logo ở đầu màn hình quên mật khẩu
+                Image.asset('assets/images/image1.png', height: 100),
+                const SizedBox(height: 10),
                 const Text(
                   'Quên mật khẩu',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
                 ),
                 const SizedBox(height: 20),
 

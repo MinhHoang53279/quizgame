@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For TextInputFormatter
 import 'package:provider/provider.dart';
 import '../data/providers/settings_provider.dart'; // Import the provider
+import '../theme.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -125,6 +126,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     const double cardPadding = 24.0;
     const double fieldPadding = 16.0;
     const double sectionSpacing = 30.0;
+    const primaryColor = AppTheme.primaryColor;
 
     return Consumer<SettingsProvider>(
       builder: (context, provider, child) {
@@ -198,7 +200,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   _selfChallengeModeEnabled = value;
                                 });
                               },
-                              activeColor: theme.primaryColor,
+                              activeColor: primaryColor,
                             ),
                           ),
                            SizedBox(height: fieldPadding),
@@ -213,7 +215,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               onPressed: provider.isLoading ? null : () => _handleUpdatePoints(context, provider),
                               child: const Text('Update Data'),
                                style: ElevatedButton.styleFrom(
-                                backgroundColor: theme.primaryColor,
+                                backgroundColor: primaryColor,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
@@ -248,7 +250,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   _specialCategoryEnabled = value;
                                 });
                               },
-                              activeColor: theme.primaryColor,
+                              activeColor: primaryColor,
                             ),
                           ),
                           const SizedBox(height: fieldPadding),
@@ -294,7 +296,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                onPressed: provider.isLoading ? null : () => _handleUpdateSpecialCategories(context, provider),
                                child: const Text('Update Data'),
                                 style: ElevatedButton.styleFrom(
-                                backgroundColor: theme.primaryColor,
+                                backgroundColor: primaryColor,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),

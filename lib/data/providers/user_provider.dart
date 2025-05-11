@@ -2,6 +2,11 @@ import 'package:flutter/foundation.dart';
 import '../models/user_model.dart';
 import '../services/user_service.dart';
 import '../services/auth_service.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
+import '../services/question_service.dart';
+import '../models/question.dart';
 
 /**
  * Provider quản lý trạng thái và logic nghiệp vụ liên quan đến người dùng.
@@ -11,6 +16,7 @@ import '../services/auth_service.dart';
 class UserProvider with ChangeNotifier {
   final UserService _userService = UserService();
   final AuthService _authService = AuthService();
+  final QuestionService _questionService = QuestionService();
   User? _currentUser; // Thông tin người dùng đang đăng nhập
   bool _isLoading = false; // Trạng thái đang tải dữ liệu
   String? _error; // Thông báo lỗi (nếu có)
@@ -240,5 +246,95 @@ class UserProvider with ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  // Create a new question
+  Future<bool> createQuestion({
+    required String question,
+    String? details,
+    required String category,
+    required String difficulty,
+    required List<String> options,
+    required int correctAnswerIndex,
+    String? explanation,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final result = await _questionService.createQuestion(
+        question: question,
+        details: details,
+        category: category,
+        difficulty: difficulty,
+        options: options,
+        correctAnswerIndex: correctAnswerIndex,
+        explanation: explanation,
+      );
+
+      _isLoading = false;
+      notifyListeners();
+
+      if (result['success']) {
+        return true;
+      } else {
+        _error = result['error'];
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      _isLoading = false;
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<List<Question>> getQuestions({
+    String? category,
+    String? difficulty,
+    int page = 0,
+    int size = 10,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final questions = await _questionService.getQuestions(
+        category: category,
+        difficulty: difficulty,
+        page: page,
+        size: size,
+      );
+
+      _isLoading = false;
+      notifyListeners();
+      return questions;
+    } catch (e) {
+      _isLoading = false;
+      _error = e.toString();
+      notifyListeners();
+      return [];
+    }
+  }
+
+  Future<Question?> getQuestionById(String id) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final question = await _questionService.getQuestionById(id);
+      _isLoading = false;
+      notifyListeners();
+      return question;
+    } catch (e) {
+      _isLoading = false;
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    }
   }
 } 

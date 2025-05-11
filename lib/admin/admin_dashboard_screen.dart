@@ -11,6 +11,7 @@ import 'featured_screen.dart'; // <<< THÊM IMPORT
 import 'users_screen.dart'; // <<< THÊM IMPORT
 import 'notifications_screen.dart'; // <<< THÊM IMPORT CHO NOTIFICATIONS >>>
 import 'settings_screen.dart'; // <<< ADD IMPORT FOR SETTINGS >>>
+import '../theme.dart';
 // Import chart library if you start implementing charts
 // import 'package:fl_chart/fl_chart.dart'; 
 
@@ -221,60 +222,170 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   // Builds the bottom row (Recent Activity / Top Users)
   Widget _buildBottomRow(DashboardSummaryDTO? summary) {
-     return LayoutBuilder(
+    return LayoutBuilder(
       builder: (context, constraints) {
-         bool isWide = constraints.maxWidth > 800; // Different breakpoint maybe
-         return Flex(
-           direction: isWide ? Axis.horizontal : Axis.vertical,
-           crossAxisAlignment: CrossAxisAlignment.start,
-           children: [
-             // Left side: Recent Activity (Optional, could be in Top Users card too)
-             // Flexible(...),
-
-             // Right side: Top Users Card Placeholder
+        bool isWide = constraints.maxWidth > 800;
+        return Flex(
+          direction: isWide ? Axis.horizontal : Axis.vertical,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Recent Activity
             Flexible(
               flex: isWide ? 1 : 0,
               child: Card(
-                 elevation: 2,
-                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                 child: Container(
-                   padding: const EdgeInsets.all(16),
-                    // Height can be fixed or dynamic based on content
-                   child: Column(
-                     crossAxisAlignment: CrossAxisAlignment.start,
-                     children: [
-                       Row(
-                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                         children: [
-                            Text('Top Users', style: Theme.of(context).textTheme.titleLarge),
-                            TextButton(onPressed: () {}, child: const Text('View All')),
-                         ],
-                       ),
-                       const SizedBox(height: 10),
-                       const ListTile(
-                         leading: CircleAvatar(child: Text('S')),
-                         title: Text('shemoeya kla'),
-                         subtitle: Text('Points: 3888'),
-                         trailing: Icon(Icons.visibility_outlined, color: Colors.grey),
-                       ),
-                        const ListTile(
-                         leading: CircleAvatar(child: Text('P')),
-                         title: Text('patrick07'),
-                         subtitle: Text('Points: 3350'),
-                         trailing: Icon(Icons.visibility_outlined, color: Colors.grey),
-                       ),
-                       // Add more placeholder users...
-                     ],
-                   )
-                 ),
-               ),
+                elevation: 2,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Recent Activity', style: Theme.of(context).textTheme.titleLarge),
+                          TextButton(onPressed: () {}, child: const Text('View All')),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      _buildActivityList(),
+                    ],
+                  ),
+                ),
+              ),
             ),
-           ],
-         );
-      }
-     );
+            if (isWide) const SizedBox(width: 16) else const SizedBox(height: 16),
+            // Top Users
+            Flexible(
+              flex: isWide ? 1 : 0,
+              child: Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Top Users', style: Theme.of(context).textTheme.titleLarge),
+                          TextButton(onPressed: () {}, child: const Text('View All')),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      _buildTopUsersList(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
+  Widget _buildActivityList() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: 5,
+      itemBuilder: (context, index) {
+        return ListTile(
+          leading: CircleAvatar(
+            backgroundColor: _getActivityColor(index),
+            child: Icon(_getActivityIcon(index), color: Colors.white),
+          ),
+          title: Text(_getActivityTitle(index)),
+          subtitle: Text(_getActivityTime(index)),
+          trailing: IconButton(
+            icon: const Icon(Icons.more_vert),
+            onPressed: () {},
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTopUsersList() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: 5,
+      itemBuilder: (context, index) {
+        return ListTile(
+          leading: CircleAvatar(
+            backgroundColor: Colors.primaries[index % Colors.primaries.length],
+            child: Text(
+              String.fromCharCode(65 + index),
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+          title: Text('User ${index + 1}'),
+          subtitle: Text('${(1000 - index * 100)} points'),
+          trailing: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.green.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              'Rank ${index + 1}',
+              style: TextStyle(
+                color: Colors.green[700],
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Color _getActivityColor(int index) {
+    final colors = [
+      Colors.blue,
+      Colors.green,
+      Colors.orange,
+      Colors.purple,
+      Colors.red,
+    ];
+    return colors[index % colors.length];
+  }
+
+  IconData _getActivityIcon(int index) {
+    final icons = [
+      Icons.person_add,
+      Icons.quiz,
+      Icons.emoji_events,
+      Icons.settings,
+      Icons.notifications,
+    ];
+    return icons[index % icons.length];
+  }
+
+  String _getActivityTitle(int index) {
+    final titles = [
+      'New user registered',
+      'Quiz completed',
+      'Contest won',
+      'Settings updated',
+      'Notification sent',
+    ];
+    return titles[index % titles.length];
+  }
+
+  String _getActivityTime(int index) {
+    final times = [
+      '2 minutes ago',
+      '5 minutes ago',
+      '10 minutes ago',
+      '15 minutes ago',
+      '20 minutes ago',
+    ];
+    return times[index % times.length];
+  }
 
   // --- Old Helper Functions (Keep for reference or remove later) ---
 
@@ -294,8 +405,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     // final userProvider = Provider.of<UserProvider>(context, listen: false); // For logout
 
     // Define the primary color for the theme
-    const sidebarColor = Color(0xFF6A1B9A); // Purple shade from image
-    const backgroundColor = Color(0xFFF5F5F5); // Light grey background
+    const sidebarColor = AppTheme.primaryColor;
+    const backgroundColor = AppTheme.backgroundColor;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -309,23 +420,32 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 _selectedIndex = index;
               });
             },
-            backgroundColor: sidebarColor,
+            backgroundColor: Colors.purple[400],
             elevation: 4,
-            minWidth: 90, // Increased width for text
-            labelType: NavigationRailLabelType.all, // Show labels always
+            minWidth: 90,
+            labelType: NavigationRailLabelType.all,
             selectedLabelTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             unselectedLabelTextStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
             selectedIconTheme: const IconThemeData(color: Colors.white, size: 28),
             unselectedIconTheme: IconThemeData(color: Colors.white.withOpacity(0.7), size: 24),
-            leading: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 20.0),
-              child: Text(
-                'QuizHour', 
-                style: TextStyle(
-                  color: Colors.white, 
-                  fontSize: 22, 
-                  fontWeight: FontWeight.bold
-                )
+            leading: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20.0),
+              child: Column(
+                children: [
+                  Image.asset(
+                    'assets/images/image1.png',
+                    height: 50,
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'QuizHour',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold
+                    )
+                  ),
+                ],
               ),
             ),
             destinations: const <NavigationRailDestination>[

@@ -14,6 +14,8 @@ import 'data/providers/admin_dashboard_provider.dart'; // Import provider admin
 import 'data/providers/settings_provider.dart'; // <<< ADD IMPORT FOR SETTINGS PROVIDER
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'data/models/category.dart'; // Thêm import cho Category
+import 'theme.dart';
 
 /**
  * Hàm main, điểm khởi đầu của ứng dụng.
@@ -44,7 +46,7 @@ class QuizApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false, // Ẩn banner debug
         title: 'Quiz App',
-        theme: ThemeData(primarySwatch: Colors.purple), // Theme màu chủ đạo
+        theme: AppTheme.themeData, // Sử dụng theme chung
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -68,7 +70,7 @@ class QuizApp extends StatelessWidget {
           '/practice': (context) => const PracticeScreen(), // <<< THÊM ROUTE PRACTICE
           // Route mới cho màn hình chơi quiz, nhận category làm argument
           '/quiz_play': (context) {
-            final category = ModalRoute.of(context)!.settings.arguments as PracticeCategory;
+            final category = ModalRoute.of(context)!.settings.arguments as Category;
             return QuizPlayScreen(category: category);
           },
           '/create_question': (context) => const CreateQuestionScreen(), // <<< THÊM ROUTE CREATE QUESTION

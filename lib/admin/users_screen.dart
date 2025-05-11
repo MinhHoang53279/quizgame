@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For Clipboard
 import 'package:intl/intl.dart'; // For number formatting if needed
+import '../theme.dart';
 
 // Model for User Information
 class UserInfo {

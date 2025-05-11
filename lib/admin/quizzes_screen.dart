@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'dart:convert'; // For jsonEncode/Decode if loading Quill data
+import '../theme.dart';
 
 // Mô hình dữ liệu giả lập cho Quiz (điều chỉnh nếu cần)
 class QuizInfo {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart'; // Import image_picker
 import 'dart:io'; // Needed for File type if used, or just use XFile
+import '../theme.dart';
 
 // Placeholder model for Category data
 class Category {
@@ -58,7 +59,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     XFile? pickedImageFile; // Variable to hold the picked image file
 
     final formKey = GlobalKey<FormState>();
-    const primaryColor = Color(0xFF6A1B9A);
+    const primaryColor = AppTheme.primaryColor;
     final ImagePicker picker = ImagePicker();
 
     return showDialog<void>(
@@ -195,7 +196,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 
   Future<void> _showAddToFeaturedDialog(BuildContext context, Category category) async {
-    const primaryColor = Color(0xFF6A1B9A);
+    const primaryColor = AppTheme.primaryColor;
     return showDialog<void>(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -238,7 +239,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 
   Future<void> _showDeleteCategoryDialog(BuildContext context, Category category) async {
-     const primaryColor = Color(0xFF6A1B9A);
+     const primaryColor = AppTheme.primaryColor;
     return showDialog<void>(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -297,7 +298,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     final imagePathController = TextEditingController(); // Empty initially
     XFile? pickedImageFile;
     final formKey = GlobalKey<FormState>();
-    const primaryColor = Color(0xFF6A1B9A);
+    const primaryColor = AppTheme.primaryColor;
     final ImagePicker picker = ImagePicker();
 
     return showDialog<void>(
@@ -425,7 +426,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   // --- SET ORDER DIALOG ---
   Future<void> _showSetOrderDialog(BuildContext context) async {
-    const primaryColor = Color(0xFF6A1B9A);
+    const primaryColor = AppTheme.primaryColor;
     // Use a temporary list within the dialog state for reordering
     List<Category> tempList = List<Category>.from(_reorderableCategories);
 
@@ -518,7 +519,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    const primaryColor = Color(0xFF6A1B9A); // Same purple as sidebar
+    const primaryColor = AppTheme.primaryColor;
 
     return Padding(
       padding: const EdgeInsets.all(24.0),

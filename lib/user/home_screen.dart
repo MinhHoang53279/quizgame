@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../data/providers/user_provider.dart';
+import '../theme.dart';
 
 class UserHomeScreen extends StatefulWidget {
   const UserHomeScreen({super.key});
@@ -13,7 +14,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
   @override
   Widget build(BuildContext context) {
     // Define colors (có thể chuyển vào Theme sau)
-    const Color primaryColor = Color(0xFF6A1B9A);
+    const Color primaryColor = AppTheme.primaryColor;
     const Color cardRed = Color(0xFFEF5350);
     const Color cardBlue = Color(0xFF42A5F5);
     const Color cardGreen = Color(0xFF66BB6A);
@@ -25,9 +26,9 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
 
     // Lấy UserProvider và userName
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final String userName = userProvider.currentUser?.fullName ?? 'Loading...';
-    final String userInitial = userProvider.currentUser?.fullName?.isNotEmpty == true
-        ? userProvider.currentUser!.fullName![0].toUpperCase()
+    final String userName = userProvider.currentUser?.username ?? 'Loading...';
+    final String userInitial = userProvider.currentUser?.username?.isNotEmpty == true
+        ? userProvider.currentUser!.username![0].toUpperCase()
         : 'G';
 
     return Scaffold(
@@ -43,7 +44,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
           ),
         ),
         title: Text(
-          'DTQUIZ',
+          'QUIZ',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -146,7 +147,6 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
 
   // Widget _buildBody MỚI
   Widget _buildBody(BuildContext context, String userName, String userInitial, Color cardRed, Color cardBlue, Color cardGreen, Color cardYellow, Color cardDarkBlue, Color cardLightGreen, Color cardOrange, Color cardLime) {
-    // Nền gradient
     final backgroundDecoration = BoxDecoration(
       gradient: LinearGradient(
         colors: [
@@ -158,19 +158,18 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
       ),
     );
 
-    // Lấy TextTheme
     final textTheme = Theme.of(context).textTheme;
+    final userProvider = Provider.of<UserProvider>(context);
 
     return Container(
       width: double.infinity,
       height: double.infinity,
       decoration: backgroundDecoration,
-      // Sử dụng SafeArea để tránh nội dung bị che bởi notch/statusbar
       child: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
           children: [
-            // --- Welcome Section ---
+            // Welcome Section
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -191,6 +190,8 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                     ),
                   ],
                 ),
+                Stack(
+                  children: [
                 CircleAvatar(
                   radius: 24,
                   backgroundColor: Colors.white.withOpacity(0.2),
@@ -198,12 +199,31 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                     userInitial,
                     style: textTheme.titleLarge?.copyWith(color: Colors.white),
                   ),
+                    ),
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: const Icon(Icons.notifications_active, size: 12, color: Colors.white),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
             const SizedBox(height: 30),
 
-            // --- Featured Section: Daily Quiz ---
+            // Stats Section
+            _buildStatsSection(context, userProvider),
+            const SizedBox(height: 30),
+
+            // Featured Section: Daily Quiz
             _buildFeaturedCard(
               context: context,
               title: 'Daily Quiz',
@@ -217,14 +237,13 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
             ),
             const SizedBox(height: 30),
 
-            // --- Main Categories Section ---
+            // Main Categories Section
             Text(
               'Explore Quizzes',
               style: textTheme.titleLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 15),
 
-            // Dùng ListView hoặc Column thay thế Grid cũ
             _buildCategoryItem(
               context: context,
               title: 'Practice Mode',
@@ -248,40 +267,110 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
             _buildCategoryItem(
               context: context,
               title: 'Upcoming Contests',
-              subtitle: 'See what\'s next',
+              subtitle: 'See what\'s coming',
               icon: Icons.calendar_today_outlined,
-              color: cardGreen,
+              color: cardOrange,
               onTap: () {
-                 /* TODO: Navigate to Upcoming Contest */ print('Upcoming Contest Tapped');
+                /* TODO: Navigate to Upcoming Contests */ print('Upcoming Contests Tapped');
               },
             ),
+            const SizedBox(height: 24),
              _buildCategoryItem(
               context: context,
-              title: 'True/False',
-              subtitle: 'Quick yes or no questions',
-              icon: Icons.check_circle_outline,
-              color: cardLime,
+              title: 'Leaderboard',
+              subtitle: 'View the top players',
+              icon: Icons.leaderboard,
+              color: Colors.amber,
               onTap: () {
-                 /* TODO: Navigate to True/False */ print('True-False Tapped');
+                // TODO: Navigate to leaderboard
               },
             ),
+            const SizedBox(height: 24),
             _buildCategoryItem(
               context: context,
-              title: 'Audio & Video Quiz',
-              subtitle: 'Listen or watch to answer',
-              icon: Icons.graphic_eq_outlined, // Có thể đổi icon phù hợp hơn
-              color: cardOrange, // Gộp Audio & Video
+              title: 'Create Question',
+              subtitle: 'Contribute your own questions',
+              icon: Icons.add_circle,
+              color: Colors.deepPurple,
               onTap: () {
-                 /* TODO: Navigate to Audio/Video Quiz */ print('Audio/Video Quiz Tapped');
+                Navigator.pushNamed(context, '/create_question');
               },
             ),
-            // Bỏ các Card riêng lẻ cho Audio, Video, General Quiz nếu đã gộp hoặc không cần
-            // _buildCategoryItem(context: context, title: 'General Quiz', ... ),
-
-            const SizedBox(height: 20),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildStatsSection(BuildContext context, UserProvider userProvider) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Your Stats',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildStatItem(
+                context,
+                icon: Icons.emoji_events_outlined,
+                value: '0',
+                label: 'Points',
+              ),
+              _buildStatItem(
+                context,
+                icon: Icons.quiz_outlined,
+                value: '0',
+                label: 'Quizzes',
+              ),
+              _buildStatItem(
+                context,
+                icon: Icons.star_outline,
+                value: '0',
+                label: 'Rank',
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatItem(BuildContext context, {
+    required IconData icon,
+    required String value,
+    required String label,
+  }) {
+    return Column(
+      children: [
+        Icon(icon, color: Colors.white, size: 28),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Colors.white70,
+          ),
+        ),
+      ],
     );
   }
 

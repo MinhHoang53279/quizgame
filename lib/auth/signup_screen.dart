@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../data/providers/user_provider.dart';
+import '../theme.dart';
 
 /**
  * Màn hình Đăng ký tài khoản.
@@ -104,13 +105,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.purple[400],
+      backgroundColor: AppTheme.primaryColor,
       body: Center(
         child: Container(
           padding: const EdgeInsets.all(20),
           width: 300,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppTheme.cardColor,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Form(
@@ -118,9 +119,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Logo ở đầu màn hình đăng ký
+                Image.asset('assets/images/image1.png', height: 100),
+                const SizedBox(height: 10),
                 const Text(
                   'Đăng ký',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
                 ),
                 const SizedBox(height: 20),
                 // Nhập tên người dùng
